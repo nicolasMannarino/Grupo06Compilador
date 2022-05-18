@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <math.h>
 #include <limits.h>
 #include "y.tab.h"
 

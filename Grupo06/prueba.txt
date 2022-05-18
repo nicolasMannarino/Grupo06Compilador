@@ -14,15 +14,16 @@ WRITE a1
 
 IF(a1 < 15 || b2 != c3 )
 {
-    -/error en cota de int/-
+    -/error en c@ota de int/-
     -/a1 := 84000/-
-   b2 := 16 
+   	b2 := 16 
 }
 ELSE
 {
-  f1 :=0.000001
+	-/error en cota de float/-
+  	num2 := 9999999999999999999999999.99
 
-
+	c3:= a1
 }
 WHILE(a1 <= b2){
 	IF(a3 != b3)
@@ -44,3 +45,12 @@ TAKE (+   ; 3  ;   [2 ; 12 ] )
 -/Probando INLIST/-
 INLIST (a; [2*b+7 ; 12 ; a+b*(34+d) ; 48])
 INLIST (z; [2.3 ; 1.22])
+
+
+WHILE(INLIST (z; [2.3 ; 1.22])){
+	IF(INLIST (z; [2.3 ; 1.22]))
+	{
+		c3:= a1
+		s1:= s2
+	}
+}
