@@ -1,4 +1,4 @@
-%{
+0%{
 #include <stdio.h>
 #include <stdlib.h>
 #include "y.tab.h"
@@ -19,6 +19,13 @@ t_NodoArbol* Fptr;
 t_NodoArbol* Lptr;
 t_NodoArbol* Wptr;
 t_NodoArbol* Rptr;
+t_NodoArbol* ILptr;
+t_NodoArbol* ASptr;
+t_NodoArbol* IFptr;
+t_NodoArbol* WHptr;
+t_NodoArbol* ESTptr;
+t_NodoArbol* SENptr;
+
 
 %}
 
@@ -85,37 +92,37 @@ t_NodoArbol* Rptr;
 programaFinal:   programa                                                       {mostrarArbolDeIzqADer(&Ptr,pArbol);}
 ;
 
-programa:   sentencia                                                           {Ptr=Sptr; printf(" FIN\n");}
+programa:   sentencia                                                           {Ptr = Sptr; printf(" FIN\n");}
 ;
 
-sentencia:  declaracion sentencia                                               {printf("   declaracion sentencia es SENTENCIA\n");}
-            |   estructura sentencia                                            {printf("   sentencia estructura es SENTENCIA\n");}
-            |   estructura                                                      {printf("   estructura es SENTENCIA\n");}
+sentencia:  declaracion sentencia                                               {SENptr = crearNodo("S",Dptr,SENptr);}
+            |   estructura sentencia                                            {SENptr = crearNodo("S",ESTptr,SENptr);}
+            |   estructura                                                      {SENptr = ESTptr;}
 ;
 
-declaracion: DECVAR listaDeclaraciones ENDDEC                                   {printf("   DECVAR ListadoDeDeclaraciones ENDDEC es DECLARACION\n");}
+declaracion: DECVAR listaDeclaraciones ENDDEC                                   {DECprt = LDECprt;}
 ;
 
 listaDeclaraciones: listaID DP tipoDato listaDeclaraciones                      {printf("   ListaDeID : TipoDeDato ListadoDeDeclaraciones es LISTADECLARACIONES\n");}
-            |   listaID DP tipoDato                                             {printf("   ListaDeID : TipoDeDato es LISTADECLARACIONES\n");}
+            |   listaID DP tipoDato                                             {LDECprt = crearNodo(":",LIDprt,TPprt));
 ;
 
-listaID:    listaID COMA ID                                                     {printf("   listaID , ID es LISTAID\n");}
-            |   ID                                                              {printf("   ID es LISTAID\n");}
+listaID:    listaID COMA ID                                                     {LIDprt = crearNodo(",",LIDprt,crearHoja($3)));}
+            |   ID                                                              {LIDprt = crearHoja($1);}
 ;
 
-tipoDato:   STRING                                                              {printf("   STRING es TIPODATO\n");}
-            |   INT                                                             {printf("   INT es TIPODATO\n");}
-            |   FLOAT                                                           {printf("   FLOAT es TIPODATO\n");}
+tipoDato:   STRING                                                              {TPprt = crearHoja($1);}
+            |   INT                                                             {TPprt = crearHoja($1);}
+            |   FLOAT                                                           {TPprt = crearHoja($1);}
 ;
 
-estructura: while                                                               {printf("   WHILE es ESTRUCTURA\n");}
-            |   if                                                              {printf("   IF es ESTRUCTURA\n");}
-            |   asign                                                           {printf("   ASIGN es ESTRUCTURA\n");}
-            |   write                                                           {printf("   WRITE es ESTRUCTURA\n");}
-            |   take                                                            {printf("   TAKE es ESTRUCTURA\n");}
-            |   read                                                            {printf("   READ es ESTRUCTURA\n");}
-            |   inlist                                                          {printf("   INLIST es ESTRUCTURA\n");}
+estructura: while                                                               {ESTptr = WHptr;}
+            |   if                                                              {ESTptr = IFptr;}
+            |   asign                                                           {ESTptr = ASptr;}
+            |   write                                                           {ESTptr = Wptr;}
+            |   take                                                            {ESTptr = Tptr;}
+            |   read                                                            {ESTptr = Rptr;}
+            |   inlist                                                          {ESTptr = ILptr;}
 ;
 
 while:      WHILE condicionFinal LL_A sentencia LL_C                            {printf("   WHILE condicionFinal { sentencia } es WHILE\n");}
@@ -157,10 +164,10 @@ inlist:     INLIST P_A ID PYC C_A listaExpresiones C_C P_C                      
 take:       TAKE P_A signo PYC CTE_INT PYC C_A valores C_C P_C                  {printf("   TAKE ( signo ; CTE_INT ; [ valores ] ) es TAKE\n");}
 ;
 
-signo:      OP_MAS                                                              {printf("   + es SIGNO\n");}
-            | OP_REST                                                           {printf("   - es SIGNO\n");}
-            | OP_MULT                                                           {printf("   * es SIGNO\n");}
-            | OP_DIV                                                            {printf("   / es SIGNO\n");}
+signo:      OP_MAS                                                              {SGptr = crearHoja($1);}
+            | OP_REST                                                           {SGptr = crearHoja($1);}
+            | OP_MULT                                                           {SGptr = crearHoja($1);}
+            | OP_DIV                                                            {SGptr = crearHoja($1);}
 ;
 
 valores:    valor PYC valores                                                   {VSprt = crearNodo(";",VSprt,Vptr);}
@@ -193,7 +200,7 @@ operando:   CTE_INT                                                             
             | CTE_FLOAT                                                         {Optr = crearHoja($1);}
             | OP_REST CTE_FLOAT                                                 {Optr = crearHoja($2);}
             | ID                                                                {Optr = crearHoja($1);}
-            | P_A expresion P_C                                                 {;}
+            | P_A expresion P_C                                                 {Optr = Eptr;}
 ;
 
 write:      WRITE factor                                                        {Wptr = crearNodo("W",crearHoja($1),Fprt);}
