@@ -1,13 +1,3 @@
-DECVAR
-a1,b2,c3,a3, b3: INT
-s1,s2:STRING
-f1,f2: FLOAT
-ENDDEC
-
-a1:=15
-b2:=-19
-c3:=6444
-
 READ f1
 WRITE "HolaMundo"
 WRITE a1
@@ -38,19 +28,3 @@ WHILE(a1 <= b2){
 -/Comentario 
 multilinea/-
 
--/Probando TAKE/-
-TAKE (*   ; 3  ;   [2 ; 12 ; 24 ; 48] )
-TAKE (+   ; 3  ;   [2 ; 12 ] )	
-
--/Probando INLIST/-
-INLIST (a; [2*b+7 ; 12 ; a+b*(34+d) ; 48])
-INLIST (z; [2.3 ; 1.22])
-
-
-WHILE(INLIST (z; [2.3 ; 1.22])){
-	IF(INLIST (z; [2.3 ; 1.22]))
-	{
-		c3:= a1
-		s1:= s2
-	}
-}

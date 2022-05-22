@@ -7,8 +7,11 @@
 
 extern FILE* yyin;
 
+void reiniciarPunteros();
+
 FILE* archTS;
 FILE *pArbol;
+FILE *pIntermedia;
 
 t_NodoArbol* Ptr;
 t_NodoArbol* Sptr;
@@ -40,6 +43,7 @@ t_NodoArbol* FDptr;
 t_NodoArbol* FIptr;
 t_NodoArbol* CONDprt;
 t_NodoArbol* CONDFprt;
+t_NodoArbol* AUXprt;
 
 
 %}
@@ -108,21 +112,22 @@ t_NodoArbol* CONDFprt;
 
 
 
-programaFinal:   programa                                                       {mostrarArbolDeIzqADer(&Ptr,pArbol);}
+programaFinal:   programa                                                       {mostrarArbolDeIzqADer(&Ptr,pArbol);InOrden(&Ptr, pIntermedia);}
 ;
 
-programa:   sentencia                                                           {Ptr = Sptr; printf(" FIN\n");}
+programa:   sentencia                                                           {Ptr = SENptr; printf(" FIN\n");}
 ;
 
-sentencia:  declaracion sentencia                                               {SENptr = crearNodo("S",DECprt,SENptr);}
-            |   estructura sentencia                                            {SENptr = crearNodo("S",ESTptr,SENptr);}
+sentencia:  sentencia declaracion                                               {SENptr = crearNodo("S",DECprt,SENptr);}
+            |   sentencia estructura                                            {SENptr = crearNodo("S",ESTptr,SENptr);}
             |   estructura                                                      {SENptr = ESTptr;}
+            |   declaracion                                                     {}
 ;
 
 declaracion: DECVAR listaDeclaraciones ENDDEC                                   {DECprt = LDECprt;}
 ;
 
-listaDeclaraciones: listaID DP tipoDato listaDeclaraciones                      {printf("   ListaDeID : TipoDeDato ListadoDeDeclaraciones es LISTADECLARACIONES\n");}
+listaDeclaraciones: listaDeclaraciones listaID DP tipoDato                      {AUXprt = crearNodo(":",LIDprt,TPprt);LDECprt = crearNodo("LISTADEC",AUXprt,LDECprt);}
             |   listaID DP tipoDato                                             {LDECprt = crearNodo(":",LIDprt,TPprt);}
 ;
 
@@ -144,11 +149,11 @@ estructura: while                                                               
             |   inlist                                                          {ESTptr = ILptr;}
 ;
 
-while:      WHILE condicionFinal LL_A sentencia LL_C                            {WHptr = crearNodo("WHILE", CFptr, SENptr);}
+while:      WHILE condicionFinal LL_A sentencia LL_C                            {WHptr = crearNodo("WHILE", CONDFprt, SENptr);}
 ;
 
-if:         IF condicionFinal LL_A sentenciaV LL_C                              {IFptr = crearNodo("IF", CFptr, SVptr);}
-            | IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C  {IFptr = crearNodo("IF", CFptr, crearNodo("CUERPO",SVptr,SFptr));}
+if:         IF condicionFinal LL_A sentenciaV LL_C                              {IFptr = crearNodo("IF", CONDFprt, SVptr);}
+            | IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C  {IFptr = crearNodo("IF", CONDFprt, crearNodo("CUERPO",SVptr,SFptr));}
 ;
 
 sentenciaV: sentencia                                                           {SVptr = SENptr;}
@@ -157,12 +162,12 @@ sentenciaV: sentencia                                                           
 sentenciaF: sentencia                                                           {SFptr = SENptr;}
 ;
 
-condicionFinal: condicionFinal COND_AND condicion                               {printf("   condicionFinal && condicion es CONDICIONFINAL\n");}
-            | P_A condicionFinal COND_AND condicion P_C                         {printf("   ( condicionFinal && condicion ) es CONDICIONFINAL\n");}
-            | P_A condicionFinal COND_AND  condicionFinal P_C                   {printf("   ( condicionFinal && condicionFinal ) es CONDICIONFINAL\n");}
-            | condicionFinal COND_OR condicion                                  {printf("   condicionFinal || condicion es CONDICIONFINAL\n");}
-            | P_A condicionFinal COND_OR condicion P_C                          {printf("   ( condicionFinal || condicion ) es CONDICIONFINAL\n");}
-            | P_A condicionFinal COND_OR  condicionFinal P_C                    {printf("   ( condicionFinal || condicionFinal ) es CONDICIONFINAL\n");}
+condicionFinal: condicionFinal COND_AND condicion                               {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
+            | P_A condicionFinal COND_AND condicion P_C                         {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
+            /*| P_A condicionFinal COND_AND  condicionFinal P_C                 {printf("   ( condicionFinal && condicionFinal ) es CONDICIONFINAL\n");}*/
+            | condicionFinal COND_OR condicion                                  {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
+            | P_A condicionFinal COND_OR condicion P_C                          {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
+            /*| P_A condicionFinal COND_OR  condicionFinal P_C                  {printf("   ( condicionFinal || condicionFinal ) es CONDICIONFINAL\n");}*/
             | COND_NOT condicionFinal                                           {;}
             | P_A COND_NOT condicion P_C                                        {CONDFprt = CONDprt;}
             | P_A condicion P_C                                                 {CONDFprt = CONDprt;}
@@ -201,7 +206,7 @@ signo:      OP_MAS                                                              
             | OP_DIV                                                            {SGptr = crearHoja("/");}
 ;
 
-valores:    valor PYC valores                                                   {VSprt = crearNodo(";",VSprt,Vptr);}
+valores:    valores PYC valor                                                   {VSprt = crearNodo(";",VSprt,Vptr);}
             | valor                                                             {VSprt = Vptr;}
 ;
 
@@ -212,7 +217,7 @@ valor:      CTE_INT                                                             
             | ID                                                                {Vptr = crearHoja($1);}
 ;
 
-listaExpresiones: expresion PYC listaExpresiones                                {Lptr = crearNodo(";",Lptr,Eptr);}
+listaExpresiones:  listaExpresiones PYC expresion                               {Lptr = crearNodo(";",Lptr,Eptr);}
             | expresion                                                         {Lptr = Eptr;}
 ;
 
@@ -234,7 +239,7 @@ operando:   CTE_INT                                                             
             | P_A expresion P_C                                                 {Optr = Eptr;}
 ;
 
-write:      WRITE factor                                                        {Wptr = crearNodo("W",crearHoja("READ"),Fptr);}
+write:      WRITE factor                                                        {Wptr = crearNodo("W",crearHoja("WRITE"),Fptr);}
 ;
 
 read:       READ ID                                                             {Rptr = crearNodo("R",crearHoja("READ"),crearHoja($2));}
@@ -254,6 +259,10 @@ factor:     ID                                                                  
 int main(int argc, char* argv[])
 {
     archTS = fopen("ts.txt","w");
+    if((pIntermedia = fopen("Intermedia.txt", "wt")) == NULL)
+	{
+        printf("\nNo se puede abrir el archivo %s\n", "Intermedia.txt");
+    }
 
     if((yyin = fopen(argv[1],"rt")) == NULL)
     {
@@ -264,7 +273,44 @@ int main(int argc, char* argv[])
 
     generarArchivo();
     printf("\nCOMPILACION EXITOSA!\n");
+    reiniciarPunteros();
+    fclose(pIntermedia);
     fclose(yyin);
     
     return 0;
+}
+
+void reiniciarPunteros(){
+Ptr = NULL;
+Sptr = NULL;
+Aptr = NULL;
+Eptr = NULL;
+Tptr = NULL;
+Optr = NULL;
+Fptr = NULL;
+Lptr = NULL;
+Wptr = NULL;
+Rptr = NULL;
+ILptr = NULL;
+ASptr = NULL;
+IFptr = NULL;
+WHptr = NULL;
+ESTptr = NULL;
+SENptr = NULL;
+DECprt = NULL;
+LDECprt = NULL;
+VSprt = NULL;
+SGptr = NULL;
+LIDprt = NULL;
+TPprt = NULL;
+Vptr = NULL;
+CFptr = NULL;
+SFptr = NULL;
+SVptr = NULL;
+FDptr = NULL;
+FIptr = NULL;
+CONDprt = NULL;
+CONDFprt = NULL;
+AUXprt = NULL;
+																						
 }
