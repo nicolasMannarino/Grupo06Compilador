@@ -927,15 +927,16 @@ YY_RULE_SETUP
                             {
                                 informarError("El ID supera el tam maximo (VALOR MAXIMO: 20)"); 
                             }
-                        else {
+                        else {                            
                             insertarIDEnTablaDeSimbolos(yytext);
+                            yylval.strVal = strdup(yytext);
                             return ID;
                             }
                         }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 122 "Lexico.l"
+#line 123 "Lexico.l"
 {
                         float num = atof(strdup(yytext));
                         if( num > FLT_MAX || FLT_MIN > num )
@@ -945,13 +946,14 @@ YY_RULE_SETUP
                         else
                         {
                             insertarEnTablaDeSimbolos(yytext);
+                            yylval.strVal = strdup(yytext);
                             return CTE_FLOAT;	        
                         }
                         }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 135 "Lexico.l"
+#line 137 "Lexico.l"
 {                        
                         int num = atoi(strdup(yytext));
                         if(num > 32767) // máximo valor de un numero de 16 bits con signo
@@ -961,18 +963,19 @@ YY_RULE_SETUP
                         else
                         {
                             insertarEnTablaDeSimbolos(yytext);
+                            yylval.strVal = strdup(yytext);
                             return CTE_INT;	
                         }
 }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 149 "Lexico.l"
+#line 152 "Lexico.l"
 {;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 151 "Lexico.l"
+#line 154 "Lexico.l"
 {
                     if(strlen(yytext) > 30)
                         {
@@ -980,36 +983,37 @@ YY_RULE_SETUP
                         }
                     else{
                         insertarEnTablaDeSimbolos(eliminarComillasCTESTRING(yytext));
+                        yylval.strVal = strdup(yytext);
                         return CTE_STRING;
                     }
                     }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 162 "Lexico.l"
+#line 166 "Lexico.l"
 {;} 
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 163 "Lexico.l"
+#line 167 "Lexico.l"
 {;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 164 "Lexico.l"
+#line 168 "Lexico.l"
 
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 165 "Lexico.l"
+#line 169 "Lexico.l"
 {tokenInvalido();}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 167 "Lexico.l"
+#line 171 "Lexico.l"
 ECHO;
 	YY_BREAK
-#line 1013 "lex.yy.c"
+#line 1017 "lex.yy.c"
 			case YY_STATE_EOF(INITIAL):
 				yyterminate();
 
@@ -1893,7 +1897,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 167 "Lexico.l"
+#line 171 "Lexico.l"
 
 
 
