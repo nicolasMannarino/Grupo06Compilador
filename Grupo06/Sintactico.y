@@ -9,6 +9,7 @@
 extern FILE* yyin;
 
 void reiniciarPunteros();
+void operacionTake(float valor);
 
 FILE* archTS;
 FILE *pArbol;
@@ -51,9 +52,11 @@ t_NodoArbol* SENIFptr;
 t_NodoArbol* TAKEptr;
 
 int nroTake;
+int controlTake;
 float nroResultadoTake; 
 char* signoTake;
-char* nroCadenaTake;
+char nroCadenaTake[10];
+
 %}
 
 %union{
@@ -215,8 +218,13 @@ asign:      ID OP_ASIG expresion                                                
 inlist:     INLIST P_A ID PYC C_A listaExpresiones C_C P_C                      {ILptr = crearNodo("INLIST",crearHoja($3),Lptr);}
 ;
 
-take:       TAKE P_A signo PYC CTE_INT {nroTake = atoi($5); nroResultadoTake = 0;} PYC C_A valores C_C P_C    
-{TAKEptr = crearHoja(itoa(nroResultadoTake,nroCadenaTake ,10 ));}
+take:       TAKE P_A signo PYC CTE_INT {controlTake=0; nroTake = atoi($5); nroResultadoTake = 0;} PYC C_A valores C_C P_C  {if(controlTake < nroTake){
+                                                                                                                                yyerror();
+                                                                                                                            }
+                                                                                                                            else{
+                                                                                                                                sprintf(nroCadenaTake,"%f",nroResultadoTake );
+                                                                                                                                TAKEptr = crearHoja(nroCadenaTake);
+                                                                                                                            }}
 ;
 
 signo:      OP_MAS                                                              {signoTake = "+";}
@@ -229,12 +237,10 @@ valores:    valores PYC valor                                                   
             | valor                                                             {;}
 ;
 
-valor:      CTE_INT                                                             {if(strcmp(signoTake,"+") == 0)
-                                                                                {nroResultadoTake += atoi($1);};}
-            | OP_REST CTE_INT                                                   {if(strcmp(signoTake,"+") == 0)
-                                                                                {nroResultadoTake += atoi($2);};}
-            | CTE_FLOAT                                                         {;}
-            | OP_REST CTE_FLOAT                                                 {;}
+valor:      CTE_INT                                                             {if(controlTake < nroTake){operacionTake(atof($1));controlTake++;};}
+            | OP_REST CTE_INT                                                   {if(controlTake < nroTake){operacionTake(atof($2));controlTake++;};}
+            | CTE_FLOAT                                                         {if(controlTake < nroTake){operacionTake(atof($1));controlTake++;};}
+            | OP_REST CTE_FLOAT                                                 {if(controlTake < nroTake){operacionTake(atof($2));controlTake++;};}
 ;
 
 listaExpresiones:  listaExpresiones PYC expresion                               {Lptr = crearNodo(";",Lptr,Eptr);}
@@ -338,4 +344,37 @@ SENWHILEptr = NULL;
 SENIFptr = NULL;
 TAKEptr = NULL;
 																						
+}
+
+void operacionTake(float valor){
+    if(strcmp(signoTake,"+") == 0){
+        nroResultadoTake += valor;
+    }
+    else
+        if(strcmp(signoTake,"-") == 0){
+            if(controlTake == 0){
+                nroResultadoTake=valor;
+            }
+            else{
+                nroResultadoTake -= valor;
+            }
+        }
+        else
+            if(strcmp(signoTake,"/") == 0){
+                if(controlTake == 0){
+                    nroResultadoTake=valor;
+                }
+                else{
+                    nroResultadoTake /= valor;
+                }
+            }
+            else
+                if(strcmp(signoTake,"*") == 0){
+                    if(controlTake == 0){
+                        nroResultadoTake=valor;
+                    }
+                    else{
+                        nroResultadoTake *= valor;
+                    }
+                }
 }

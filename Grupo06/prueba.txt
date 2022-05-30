@@ -23,7 +23,9 @@ WHILE(a1 <= b2){
 		s1:= s2
 	}
 }
-h := TAKE(*;3;[2 ; 12 ; 24 ; 48])
+
+-/Probando TAKE/-
+h := TAKE(+;3;[2;2;2])
 
 
 -/Probando INLIST/-
