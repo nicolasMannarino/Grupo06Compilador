@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "y.tab.h"
 #include "TablaSimbolos.h"
 #include "Arbol.h"
@@ -29,23 +30,30 @@ t_NodoArbol* IFptr;
 t_NodoArbol* WHptr;
 t_NodoArbol* ESTptr;
 t_NodoArbol* SENptr;
-t_NodoArbol* DECprt;
-t_NodoArbol* LDECprt;
-t_NodoArbol* VSprt;
+t_NodoArbol* DECptr;
+t_NodoArbol* LDECptr;
+t_NodoArbol* VSptr;
 t_NodoArbol* SGptr;
-t_NodoArbol* LIDprt;
-t_NodoArbol* TPprt;
+t_NodoArbol* LIDptr;
+t_NodoArbol* TPptr;
 t_NodoArbol* Vptr;
 t_NodoArbol* CFptr;
 t_NodoArbol* SFptr;
 t_NodoArbol* SVptr;
 t_NodoArbol* FDptr;
 t_NodoArbol* FIptr;
-t_NodoArbol* CONDprt;
-t_NodoArbol* CONDFprt;
-t_NodoArbol* AUXprt;
+t_NodoArbol* CONDptr;
+t_NodoArbol* CONDFptr;
+t_NodoArbol* AUXptr;
+t_NodoArbol* CONDWptr;
+t_NodoArbol* SENWHILEptr;
+t_NodoArbol* SENIFptr;
+t_NodoArbol* TAKEptr;
 
-
+int nroTake;
+float nroResultadoTake; 
+char* signoTake;
+char* nroCadenaTake;
 %}
 
 %union{
@@ -118,26 +126,26 @@ programaFinal:   programa                                                       
 programa:   sentencia                                                           {Ptr = SENptr; printf(" FIN\n");}
 ;
 
-sentencia:  sentencia declaracion                                               {SENptr = crearNodo("S",DECprt,SENptr);}
-            |   sentencia estructura                                            {SENptr = crearNodo("S",ESTptr,SENptr);}
+sentencia:  sentencia declaracion                                               {SENptr = crearNodo("S",SENptr,DECptr);}
+            |   sentencia estructura                                            {SENptr = crearNodo("S",SENptr,ESTptr);}
             |   estructura                                                      {SENptr = ESTptr;}
-            |   declaracion                                                     {}
+            |   declaracion                                                     {SENptr = DECptr;}
 ;
 
-declaracion: DECVAR listaDeclaraciones ENDDEC                                   {DECprt = LDECprt;}
+declaracion: DECVAR listaDeclaraciones ENDDEC                                   {DECptr = LDECptr;}
 ;
 
-listaDeclaraciones: listaDeclaraciones listaID DP tipoDato                      {AUXprt = crearNodo(":",LIDprt,TPprt);LDECprt = crearNodo("LISTADEC",AUXprt,LDECprt);}
-            |   listaID DP tipoDato                                             {LDECprt = crearNodo(":",LIDprt,TPprt);}
+listaDeclaraciones: listaDeclaraciones listaID DP tipoDato                      {AUXptr = crearNodo(":",LIDptr,TPptr);LDECptr = crearNodo("LISTADEC",AUXptr,LDECptr);}
+            |   listaID DP tipoDato                                             {LDECptr = crearNodo(":",LIDptr,TPptr);}
 ;
 
-listaID:    listaID COMA ID                                                     {LIDprt = crearNodo(",",LIDprt,crearHoja($3));}
-            |   ID                                                              {LIDprt = crearHoja($1);}
+listaID:    listaID COMA ID                                                     {LIDptr = crearNodo(",",LIDptr,crearHoja($3));}
+            |   ID                                                              {LIDptr = crearHoja($1);}
 ;
 
-tipoDato:   STRING                                                              {TPprt = crearHoja("STRING");}
-            |   INT                                                             {TPprt = crearHoja("INT");}
-            |   FLOAT                                                           {TPprt = crearHoja("FLOAT");}
+tipoDato:   STRING                                                              {TPptr = crearHoja("STRING");}
+            |   INT                                                             {TPptr = crearHoja("INT");}
+            |   FLOAT                                                           {TPptr = crearHoja("FLOAT");}
 ;
 
 estructura: while                                                               {ESTptr = WHptr;}
@@ -149,39 +157,49 @@ estructura: while                                                               
             |   inlist                                                          {ESTptr = ILptr;}
 ;
 
-while:      WHILE condicionFinal LL_A sentencia LL_C                            {WHptr = crearNodo("WHILE", CONDFprt, SENptr);}
+while:      WHILE condicionWhile LL_A sentenciaWhile LL_C                            {WHptr = crearNodo("WHILE", CONDWptr, SENWHILEptr);}
 ;
 
-if:         IF condicionFinal LL_A sentenciaV LL_C                              {IFptr = crearNodo("IF", CONDFprt, SVptr);}
-            | IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C  {IFptr = crearNodo("IF", CONDFprt, crearNodo("CUERPO",SVptr,SFptr));}
+sentenciaWhile: sentenciaWhile estructura                                             {SENWHILEptr = crearNodo("S",SENWHILEptr,ESTptr);}
+            |   estructura                                                            {SENWHILEptr = ESTptr;}
+
+condicionWhile: condicionFinal                                                           {CONDWptr = CONDFptr;}
 ;
 
-sentenciaV: sentencia                                                           {SVptr = SENptr;}
+if:         IF condicionFinal LL_A sentenciaV LL_C                              {IFptr = crearNodo("IF", CONDFptr, SVptr);}
+            | IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C  {IFptr = crearNodo("IF", CONDFptr, crearNodo("CUERPO",SVptr,SFptr));}
 ;
 
-sentenciaF: sentencia                                                           {SFptr = SENptr;}
+sentenciaIf: sentenciaIf estructura                                             {SENIFptr = crearNodo("S",SENIFptr,ESTptr);}
+            |   estructura                                                      {SENIFptr = ESTptr;}
+
+
+sentenciaV: sentenciaIf                                                           {SVptr = SENIFptr;}
 ;
 
-condicionFinal: condicionFinal COND_AND condicion                               {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
-            | P_A condicionFinal COND_AND condicion P_C                         {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
+sentenciaF: sentenciaIf                                                           {SFptr = SENIFptr;}
+;
+
+condicionFinal: condicionFinal COND_AND condicion                               {CONDFptr = crearNodo("AND",CONDFptr,CONDptr);}
+            | P_A condicionFinal COND_AND condicion P_C                         {CONDFptr = crearNodo("AND",CONDFptr,CONDptr);}
             /*| P_A condicionFinal COND_AND  condicionFinal P_C                 {printf("   ( condicionFinal && condicionFinal ) es CONDICIONFINAL\n");}*/
-            | condicionFinal COND_OR condicion                                  {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
-            | P_A condicionFinal COND_OR condicion P_C                          {CONDFprt = crearNodo("CondFIN",CONDFprt,CONDprt);}
+            | condicionFinal COND_OR condicion                                  {CONDFptr = crearNodo("OR",CONDFptr,CONDptr);}
+            | P_A condicionFinal COND_OR condicion P_C                          {CONDFptr = crearNodo("OR",CONDFptr,CONDptr);}
             /*| P_A condicionFinal COND_OR  condicionFinal P_C                  {printf("   ( condicionFinal || condicionFinal ) es CONDICIONFINAL\n");}*/
             | COND_NOT condicionFinal                                           {;}
-            | P_A COND_NOT condicion P_C                                        {CONDFprt = CONDprt;}
-            | P_A condicion P_C                                                 {CONDFprt = CONDprt;}
-            | condicion                                                         {CONDFprt = CONDprt;}
+            | P_A COND_NOT condicion P_C                                        {CONDFptr = CONDptr;}
+            | P_A condicion P_C                                                 {CONDFptr = CONDptr;}
+            | condicion                                                         {CONDFptr = CONDptr;}
 ;
 
-condicion:  factorDer COMP_MEN factorIzq                                        {CONDprt = crearNodo("<", FDptr,FIptr);}
-            |   factorDer COMP_MAY factorIzq                                    {CONDprt = crearNodo(">", FDptr,FIptr);}
-            |   factorDer COMP_MENOI factorIzq                                  {CONDprt = crearNodo("<=", FDptr,FIptr);}
-            |   factorDer COMP_MAYOI factorIzq                                  {CONDprt = crearNodo(">=", FDptr,FIptr);}
-            |   factorDer COMP_IGUAL factorIzq                                  {CONDprt = crearNodo("==", FDptr,FIptr);}
-            |   factorDer COMP_DIST factorIzq                                   {CONDprt = crearNodo("!=", FDptr,FIptr);}
-            |   COND_NOT factor                                                 {CONDprt = Fptr;}
-            |   inlist                                                          {CONDprt = ILptr;}
+condicion:  factorIzq COMP_MEN factorDer                                        {CONDptr = crearNodo("<",  FIptr, FDptr);}
+            |   factorIzq COMP_MAY factorDer                                    {CONDptr = crearNodo(">",  FIptr, FDptr);}
+            |   factorIzq COMP_MENOI factorDer                                  {CONDptr = crearNodo("<=", FIptr, FDptr);}
+            |   factorIzq COMP_MAYOI factorDer                                  {CONDptr = crearNodo(">=", FIptr, FDptr);}
+            |   factorIzq COMP_IGUAL factorDer                                  {CONDptr = crearNodo("==", FIptr, FDptr);}
+            |   factorIzq COMP_DIST factorDer                                   {CONDptr = crearNodo("!=", FIptr, FDptr);}
+            |   COND_NOT factor                                                 {CONDptr = Fptr;}
+            |   inlist                                                          {CONDptr = ILptr;}
 ;
 
 factorDer: factor                                                               {FDptr = Fptr;}
@@ -190,31 +208,33 @@ factorDer: factor                                                               
 factorIzq: factor                                                               {FIptr = Fptr;}
 ;
 
-asign:      ID OP_ASIG expresion                                                {ASptr = crearNodo("=", Eptr, crearHoja($1));}
+asign:      ID OP_ASIG expresion                                                {ASptr = crearNodo("=", crearHoja($1),Eptr);}
             | ID OP_ASIG CTE_STRING                                             {ASptr = crearNodo("=", crearHoja($1), crearHoja($3));}
 ;
 
-inlist:     INLIST P_A ID PYC C_A listaExpresiones C_C P_C                      {ILptr = crearNodo("INLIST", crearHoja($3), Lptr);}
+inlist:     INLIST P_A ID PYC C_A listaExpresiones C_C P_C                      {ILptr = crearNodo("INLIST",crearHoja($3),Lptr);}
 ;
 
-take:       TAKE P_A signo PYC CTE_INT PYC C_A valores C_C P_C                  {printf("   TAKE ( signo ; CTE_INT ; [ valores ] ) es TAKE\n");}
+take:       TAKE P_A signo PYC CTE_INT {nroTake = atoi($5); nroResultadoTake = 0;} PYC C_A valores C_C P_C    
+{TAKEptr = crearHoja(itoa(nroResultadoTake,nroCadenaTake ,10 ));}
 ;
 
-signo:      OP_MAS                                                              {SGptr = crearHoja("+");}
-            | OP_REST                                                           {SGptr = crearHoja("-");}
-            | OP_MULT                                                           {SGptr = crearHoja("*");}
-            | OP_DIV                                                            {SGptr = crearHoja("/");}
+signo:      OP_MAS                                                              {signoTake = "+";}
+            | OP_REST                                                           {signoTake = "-";}
+            | OP_MULT                                                           {signoTake = "*";}
+            | OP_DIV                                                            {signoTake = "/";}
 ;
 
-valores:    valores PYC valor                                                   {VSprt = crearNodo(";",VSprt,Vptr);}
-            | valor                                                             {VSprt = Vptr;}
+valores:    valores PYC valor                                                   {;}
+            | valor                                                             {;}
 ;
 
-valor:      CTE_INT                                                             {Vptr = crearHoja($1);}
-            | OP_REST CTE_INT                                                   {Vptr = crearHoja($2);}
-            | CTE_FLOAT                                                         {Vptr = crearHoja($1);}
-            | OP_REST CTE_FLOAT                                                 {Vptr = crearHoja($2);}
-            | ID                                                                {Vptr = crearHoja($1);}
+valor:      CTE_INT                                                             {if(strcmp(signoTake,"+") == 0)
+                                                                                {nroResultadoTake += atoi($1);};}
+            | OP_REST CTE_INT                                                   {if(strcmp(signoTake,"+") == 0)
+                                                                                {nroResultadoTake += atoi($2);};}
+            | CTE_FLOAT                                                         {;}
+            | OP_REST CTE_FLOAT                                                 {;}
 ;
 
 listaExpresiones:  listaExpresiones PYC expresion                               {Lptr = crearNodo(";",Lptr,Eptr);}
@@ -223,7 +243,7 @@ listaExpresiones:  listaExpresiones PYC expresion                               
 
 expresion:  expresion OP_MAS termino                                            {Eptr = crearNodo("+",Eptr,Tptr);}
             | expresion OP_REST termino                                         {Eptr = crearNodo("-",Eptr,Tptr);}
-            | termino                                                           {Eptr = Tptr;}
+            | termino                                                           {Eptr = Tptr;}                                                                              
 ;
 
 termino:    termino OP_DIV operando                                             {Tptr = crearNodo("/",Tptr,Optr);}
@@ -236,7 +256,8 @@ operando:   CTE_INT                                                             
             | CTE_FLOAT                                                         {Optr = crearHoja($1);}
             | OP_REST CTE_FLOAT                                                 {Optr = crearHoja($2);}
             | ID                                                                {Optr = crearHoja($1);}
-            | P_A expresion P_C                                                 {Optr = Eptr;}
+            | P_A expresion P_C                                                 {;}
+            | take                                                              {Optr = TAKEptr;}
 ;
 
 write:      WRITE factor                                                        {Wptr = crearNodo("W",crearHoja("WRITE"),Fptr);}
@@ -297,20 +318,24 @@ IFptr = NULL;
 WHptr = NULL;
 ESTptr = NULL;
 SENptr = NULL;
-DECprt = NULL;
-LDECprt = NULL;
-VSprt = NULL;
+DECptr = NULL;
+LDECptr = NULL;
+VSptr = NULL;
 SGptr = NULL;
-LIDprt = NULL;
-TPprt = NULL;
+LIDptr = NULL;
+TPptr = NULL;
 Vptr = NULL;
 CFptr = NULL;
 SFptr = NULL;
 SVptr = NULL;
 FDptr = NULL;
 FIptr = NULL;
-CONDprt = NULL;
-CONDFprt = NULL;
-AUXprt = NULL;
+CONDptr = NULL;
+CONDFptr = NULL;
+AUXptr = NULL;
+CONDWptr = NULL;
+SENWHILEptr = NULL;
+SENIFptr = NULL;
+TAKEptr = NULL;
 																						
 }

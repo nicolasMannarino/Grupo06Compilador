@@ -945,7 +945,7 @@ YY_RULE_SETUP
                         }
                         else
                         {
-                            insertarEnTablaDeSimbolos(yytext);
+                            insertarEnTablaDeSimbolos(yytext,"FLOAT");
                             yylval.strVal = strdup(yytext);
                             return CTE_FLOAT;	        
                         }
@@ -962,7 +962,7 @@ YY_RULE_SETUP
                         }
                         else
                         {
-                            insertarEnTablaDeSimbolos(yytext);
+                            insertarEnTablaDeSimbolos(yytext,"INT");
                             yylval.strVal = strdup(yytext);
                             return CTE_INT;	
                         }
@@ -982,7 +982,7 @@ YY_RULE_SETUP
                          informarError("La constante STRING supera el tam maximo (VALOR MAXIMO: 30)"); 
                         }
                     else{
-                        insertarEnTablaDeSimbolos(eliminarComillasCTESTRING(yytext));
+                        insertarEnTablaDeSimbolos(eliminarComillasCTESTRING(yytext),"STRING");
                         yylval.strVal = strdup(yytext);
                         return CTE_STRING;
                     }

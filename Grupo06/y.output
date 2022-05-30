@@ -8,7 +8,7 @@ Terminals unused in grammar
    linefeed
 
 
-Estado 47 conflictos: 2 desplazamiento(s)/reducción(ones)
+Estado 48 conflictos: 2 desplazamiento(s)/reducción(ones)
 
 
 Gramática
@@ -44,86 +44,96 @@ Gramática
    20           | read
    21           | inlist
 
-   22 while: WHILE condicionFinal LL_A sentencia LL_C
+   22 while: WHILE condicionWhile LL_A sentenciaWhile LL_C
 
-   23 if: IF condicionFinal LL_A sentenciaV LL_C
-   24   | IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C
+   23 sentenciaWhile: sentenciaWhile estructura
+   24               | estructura
 
-   25 sentenciaV: sentencia
+   25 condicionWhile: condicionFinal
 
-   26 sentenciaF: sentencia
+   26 if: IF condicionFinal LL_A sentenciaV LL_C
+   27   | IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C
 
-   27 condicionFinal: condicionFinal COND_AND condicion
-   28               | P_A condicionFinal COND_AND condicion P_C
-   29               | condicionFinal COND_OR condicion
-   30               | P_A condicionFinal COND_OR condicion P_C
-   31               | COND_NOT condicionFinal
-   32               | P_A COND_NOT condicion P_C
-   33               | P_A condicion P_C
-   34               | condicion
+   28 sentenciaIf: sentenciaIf estructura
+   29            | estructura
 
-   35 condicion: factorDer COMP_MEN factorIzq
-   36          | factorDer COMP_MAY factorIzq
-   37          | factorDer COMP_MENOI factorIzq
-   38          | factorDer COMP_MAYOI factorIzq
-   39          | factorDer COMP_IGUAL factorIzq
-   40          | factorDer COMP_DIST factorIzq
-   41          | COND_NOT factor
-   42          | inlist
+   30 sentenciaV: sentenciaIf
 
-   43 factorDer: factor
+   31 sentenciaF: sentenciaIf
 
-   44 factorIzq: factor
+   32 condicionFinal: condicionFinal COND_AND condicion
+   33               | P_A condicionFinal COND_AND condicion P_C
+   34               | condicionFinal COND_OR condicion
+   35               | P_A condicionFinal COND_OR condicion P_C
+   36               | COND_NOT condicionFinal
+   37               | P_A COND_NOT condicion P_C
+   38               | P_A condicion P_C
+   39               | condicion
 
-   45 asign: ID OP_ASIG expresion
-   46      | ID OP_ASIG CTE_STRING
+   40 condicion: factorIzq COMP_MEN factorDer
+   41          | factorIzq COMP_MAY factorDer
+   42          | factorIzq COMP_MENOI factorDer
+   43          | factorIzq COMP_MAYOI factorDer
+   44          | factorIzq COMP_IGUAL factorDer
+   45          | factorIzq COMP_DIST factorDer
+   46          | COND_NOT factor
+   47          | inlist
 
-   47 inlist: INLIST P_A ID PYC C_A listaExpresiones C_C P_C
+   48 factorDer: factor
 
-   48 take: TAKE P_A signo PYC CTE_INT PYC C_A valores C_C P_C
+   49 factorIzq: factor
 
-   49 signo: OP_MAS
-   50      | OP_REST
-   51      | OP_MULT
-   52      | OP_DIV
+   50 asign: ID OP_ASIG expresion
+   51      | ID OP_ASIG CTE_STRING
 
-   53 valores: valores PYC valor
-   54        | valor
+   52 inlist: INLIST P_A ID PYC C_A listaExpresiones C_C P_C
 
-   55 valor: CTE_INT
-   56      | OP_REST CTE_INT
-   57      | CTE_FLOAT
-   58      | OP_REST CTE_FLOAT
-   59      | ID
+   53 $@1: /* vacío */
 
-   60 listaExpresiones: listaExpresiones PYC expresion
-   61                 | expresion
+   54 take: TAKE P_A signo PYC CTE_INT $@1 PYC C_A valores C_C P_C
 
-   62 expresion: expresion OP_MAS termino
-   63          | expresion OP_REST termino
-   64          | termino
+   55 signo: OP_MAS
+   56      | OP_REST
+   57      | OP_MULT
+   58      | OP_DIV
 
-   65 termino: termino OP_DIV operando
-   66        | termino OP_MULT operando
-   67        | operando
+   59 valores: valores PYC valor
+   60        | valor
 
-   68 operando: CTE_INT
-   69         | OP_REST CTE_INT
-   70         | CTE_FLOAT
-   71         | OP_REST CTE_FLOAT
-   72         | ID
-   73         | P_A expresion P_C
+   61 valor: CTE_INT
+   62      | OP_REST CTE_INT
+   63      | CTE_FLOAT
+   64      | OP_REST CTE_FLOAT
 
-   74 write: WRITE factor
+   65 listaExpresiones: listaExpresiones PYC expresion
+   66                 | expresion
 
-   75 read: READ ID
+   67 expresion: expresion OP_MAS termino
+   68          | expresion OP_REST termino
+   69          | termino
 
-   76 factor: ID
-   77       | CTE_INT
-   78       | OP_REST CTE_INT
-   79       | CTE_STRING
-   80       | CTE_FLOAT
-   81       | OP_REST CTE_FLOAT
+   70 termino: termino OP_DIV operando
+   71        | termino OP_MULT operando
+   72        | operando
+
+   73 operando: CTE_INT
+   74         | OP_REST CTE_INT
+   75         | CTE_FLOAT
+   76         | OP_REST CTE_FLOAT
+   77         | ID
+   78         | P_A expresion P_C
+   79         | take
+
+   80 write: WRITE factor
+
+   81 read: READ ID
+
+   82 factor: ID
+   83       | CTE_INT
+   84       | OP_REST CTE_INT
+   85       | CTE_STRING
+   86       | CTE_FLOAT
+   87       | OP_REST CTE_FLOAT
 
 
 Terminales con las reglas donde aparecen
@@ -131,47 +141,47 @@ Terminales con las reglas donde aparecen
 $end (0) 0
 error (256)
 WHILE (258) 22
-IF (259) 23 24
-ELSE (260) 24
-WRITE (261) 74
-READ (262) 75
+IF (259) 26 27
+ELSE (260) 27
+WRITE (261) 80
+READ (262) 81
 AND (263)
 OR (264)
 NOT (265)
 DECVAR (266) 7
 ENDDEC (267) 7
-INLIST (268) 47
-TAKE (269) 48
+INLIST (268) 52
+TAKE (269) 54
 FLOAT (270) 14
 STRING (271) 12
 INT (272) 13
-OP_MAS (273) 49 62
-OP_REST (274) 50 56 58 63 69 71 78 81
-OP_MULT (275) 51 66
-OP_DIV (276) 52 65
-OP_ASIG (277) 45 46
-COMP_DIST (278) 40
-COMP_MAY (279) 36
-COMP_MEN (280) 35
-COMP_IGUAL (281) 39
-COMP_MAYOI (282) 38
-COMP_MENOI (283) 37
-COND_AND (284) 27 28
-COND_OR (285) 29 30
-COND_NOT (286) 31 32 41
-P_A (287) 28 30 32 33 47 48 73
-P_C (288) 28 30 32 33 47 48 73
-LL_A (289) 22 23 24
-LL_C (290) 22 23 24
-C_A (291) 47 48
-C_C (292) 47 48
+OP_MAS (273) 55 67
+OP_REST (274) 56 62 64 68 74 76 84 87
+OP_MULT (275) 57 71
+OP_DIV (276) 58 70
+OP_ASIG (277) 50 51
+COMP_DIST (278) 45
+COMP_MAY (279) 41
+COMP_MEN (280) 40
+COMP_IGUAL (281) 44
+COMP_MAYOI (282) 43
+COMP_MENOI (283) 42
+COND_AND (284) 32 33
+COND_OR (285) 34 35
+COND_NOT (286) 36 37 46
+P_A (287) 33 35 37 38 52 54 78
+P_C (288) 33 35 37 38 52 54 78
+LL_A (289) 22 26 27
+LL_C (290) 22 26 27
+C_A (291) 52 54
+C_C (292) 52 54
 COMA (293) 10
-PYC (294) 47 48 53 60
+PYC (294) 52 54 59 65
 DP (295) 8 9
-ID (296) 10 11 45 46 47 59 72 75 76
-CTE_INT (297) 48 55 56 68 69 77 78
-CTE_FLOAT (298) 57 58 70 71 80 81
-CTE_STRING (299) 46 79
+ID (296) 10 11 50 51 52 77 81 82
+CTE_INT (297) 54 61 62 73 74 83 84
+CTE_FLOAT (298) 63 64 75 76 86 87
+CTE_STRING (299) 51 85
 COMENT (300)
 whitespace (301)
 linefeed (302)
@@ -186,7 +196,7 @@ programaFinal (49)
 programa (50)
     en la izquierda: 2, en la derecha: 1
 sentencia (51)
-    en la izquierda: 3 4 5 6, en la derecha: 2 3 4 22 25 26
+    en la izquierda: 3 4 5 6, en la derecha: 2 3 4
 declaracion (52)
     en la izquierda: 7, en la derecha: 3 6
 listaDeclaraciones (53)
@@ -196,51 +206,60 @@ listaID (54)
 tipoDato (55)
     en la izquierda: 12 13 14, en la derecha: 8 9
 estructura (56)
-    en la izquierda: 15 16 17 18 19 20 21, en la derecha: 4 5
+    en la izquierda: 15 16 17 18 19 20 21, en la derecha: 4 5 23 24
+    28 29
 while (57)
     en la izquierda: 22, en la derecha: 15
-if (58)
-    en la izquierda: 23 24, en la derecha: 16
-sentenciaV (59)
-    en la izquierda: 25, en la derecha: 23 24
-sentenciaF (60)
-    en la izquierda: 26, en la derecha: 24
-condicionFinal (61)
-    en la izquierda: 27 28 29 30 31 32 33 34, en la derecha: 22 23
-    24 27 28 29 30 31
-condicion (62)
-    en la izquierda: 35 36 37 38 39 40 41 42, en la derecha: 27 28
-    29 30 32 33 34
-factorDer (63)
-    en la izquierda: 43, en la derecha: 35 36 37 38 39 40
-factorIzq (64)
-    en la izquierda: 44, en la derecha: 35 36 37 38 39 40
-asign (65)
-    en la izquierda: 45 46, en la derecha: 17
-inlist (66)
-    en la izquierda: 47, en la derecha: 21 42
-take (67)
-    en la izquierda: 48, en la derecha: 19
-signo (68)
-    en la izquierda: 49 50 51 52, en la derecha: 48
-valores (69)
-    en la izquierda: 53 54, en la derecha: 48 53
-valor (70)
-    en la izquierda: 55 56 57 58 59, en la derecha: 53 54
-listaExpresiones (71)
-    en la izquierda: 60 61, en la derecha: 47 60
-expresion (72)
-    en la izquierda: 62 63 64, en la derecha: 45 60 61 62 63 73
-termino (73)
-    en la izquierda: 65 66 67, en la derecha: 62 63 64 65 66
-operando (74)
-    en la izquierda: 68 69 70 71 72 73, en la derecha: 65 66 67
-write (75)
-    en la izquierda: 74, en la derecha: 18
-read (76)
-    en la izquierda: 75, en la derecha: 20
-factor (77)
-    en la izquierda: 76 77 78 79 80 81, en la derecha: 41 43 44 74
+sentenciaWhile (58)
+    en la izquierda: 23 24, en la derecha: 22 23
+condicionWhile (59)
+    en la izquierda: 25, en la derecha: 22
+if (60)
+    en la izquierda: 26 27, en la derecha: 16
+sentenciaIf (61)
+    en la izquierda: 28 29, en la derecha: 28 30 31
+sentenciaV (62)
+    en la izquierda: 30, en la derecha: 26 27
+sentenciaF (63)
+    en la izquierda: 31, en la derecha: 27
+condicionFinal (64)
+    en la izquierda: 32 33 34 35 36 37 38 39, en la derecha: 25 26
+    27 32 33 34 35 36
+condicion (65)
+    en la izquierda: 40 41 42 43 44 45 46 47, en la derecha: 32 33
+    34 35 37 38 39
+factorDer (66)
+    en la izquierda: 48, en la derecha: 40 41 42 43 44 45
+factorIzq (67)
+    en la izquierda: 49, en la derecha: 40 41 42 43 44 45
+asign (68)
+    en la izquierda: 50 51, en la derecha: 17
+inlist (69)
+    en la izquierda: 52, en la derecha: 21 47
+take (70)
+    en la izquierda: 54, en la derecha: 19 79
+$@1 (71)
+    en la izquierda: 53, en la derecha: 54
+signo (72)
+    en la izquierda: 55 56 57 58, en la derecha: 54
+valores (73)
+    en la izquierda: 59 60, en la derecha: 54 59
+valor (74)
+    en la izquierda: 61 62 63 64, en la derecha: 59 60
+listaExpresiones (75)
+    en la izquierda: 65 66, en la derecha: 52 65
+expresion (76)
+    en la izquierda: 67 68 69, en la derecha: 50 65 66 67 68 78
+termino (77)
+    en la izquierda: 70 71 72, en la derecha: 67 68 69 70 71
+operando (78)
+    en la izquierda: 73 74 75 76 77 78 79, en la derecha: 70 71 72
+write (79)
+    en la izquierda: 80, en la derecha: 18
+read (80)
+    en la izquierda: 81, en la derecha: 20
+factor (81)
+    en la izquierda: 82 83 84 85 86 87, en la derecha: 46 48 49 80
 
 
 estado 0
@@ -272,7 +291,7 @@ estado 0
 
 estado 1
 
-   22 while: WHILE . condicionFinal LL_A sentencia LL_C
+   22 while: WHILE . condicionWhile LL_A sentenciaWhile LL_C
 
     INLIST      desplazar e ir al estado 6
     OP_REST     desplazar e ir al estado 21
@@ -283,17 +302,18 @@ estado 1
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    condicionFinal  ir al estado 28
-    condicion       ir al estado 29
-    factorDer       ir al estado 30
-    inlist          ir al estado 31
-    factor          ir al estado 32
+    condicionWhile  ir al estado 28
+    condicionFinal  ir al estado 29
+    condicion       ir al estado 30
+    factorIzq       ir al estado 31
+    inlist          ir al estado 32
+    factor          ir al estado 33
 
 
 estado 2
 
-   23 if: IF . condicionFinal LL_A sentenciaV LL_C
-   24   | IF . condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C
+   26 if: IF . condicionFinal LL_A sentenciaV LL_C
+   27   | IF . condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C
 
     INLIST      desplazar e ir al estado 6
     OP_REST     desplazar e ir al estado 21
@@ -304,16 +324,16 @@ estado 2
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    condicionFinal  ir al estado 33
-    condicion       ir al estado 29
-    factorDer       ir al estado 30
-    inlist          ir al estado 31
-    factor          ir al estado 32
+    condicionFinal  ir al estado 34
+    condicion       ir al estado 30
+    factorIzq       ir al estado 31
+    inlist          ir al estado 32
+    factor          ir al estado 33
 
 
 estado 3
 
-   74 write: WRITE . factor
+   80 write: WRITE . factor
 
     OP_REST     desplazar e ir al estado 21
     ID          desplazar e ir al estado 24
@@ -321,53 +341,53 @@ estado 3
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factor  ir al estado 34
+    factor  ir al estado 35
 
 
 estado 4
 
-   75 read: READ . ID
+   81 read: READ . ID
 
-    ID  desplazar e ir al estado 35
+    ID  desplazar e ir al estado 36
 
 
 estado 5
 
     7 declaracion: DECVAR . listaDeclaraciones ENDDEC
 
-    ID  desplazar e ir al estado 36
+    ID  desplazar e ir al estado 37
 
-    listaDeclaraciones  ir al estado 37
-    listaID             ir al estado 38
+    listaDeclaraciones  ir al estado 38
+    listaID             ir al estado 39
 
 
 estado 6
 
-   47 inlist: INLIST . P_A ID PYC C_A listaExpresiones C_C P_C
-
-    P_A  desplazar e ir al estado 39
-
-
-estado 7
-
-   48 take: TAKE . P_A signo PYC CTE_INT PYC C_A valores C_C P_C
+   52 inlist: INLIST . P_A ID PYC C_A listaExpresiones C_C P_C
 
     P_A  desplazar e ir al estado 40
 
 
+estado 7
+
+   54 take: TAKE . P_A signo PYC CTE_INT $@1 PYC C_A valores C_C P_C
+
+    P_A  desplazar e ir al estado 41
+
+
 estado 8
 
-   45 asign: ID . OP_ASIG expresion
-   46      | ID . OP_ASIG CTE_STRING
+   50 asign: ID . OP_ASIG expresion
+   51      | ID . OP_ASIG CTE_STRING
 
-    OP_ASIG  desplazar e ir al estado 41
+    OP_ASIG  desplazar e ir al estado 42
 
 
 estado 9
 
     0 $accept: programaFinal . $end
 
-    $end  desplazar e ir al estado 42
+    $end  desplazar e ir al estado 43
 
 
 estado 10
@@ -394,8 +414,8 @@ estado 11
 
     $default  reduce usando la regla 2 (programa)
 
-    declaracion  ir al estado 43
-    estructura   ir al estado 44
+    declaracion  ir al estado 44
+    estructura   ir al estado 45
     while        ir al estado 14
     if           ir al estado 15
     asign        ir al estado 16
@@ -470,17 +490,17 @@ estado 20
 
 estado 21
 
-   78 factor: OP_REST . CTE_INT
-   81       | OP_REST . CTE_FLOAT
+   84 factor: OP_REST . CTE_INT
+   87       | OP_REST . CTE_FLOAT
 
-    CTE_INT    desplazar e ir al estado 45
-    CTE_FLOAT  desplazar e ir al estado 46
+    CTE_INT    desplazar e ir al estado 46
+    CTE_FLOAT  desplazar e ir al estado 47
 
 
 estado 22
 
-   31 condicionFinal: COND_NOT . condicionFinal
-   41 condicion: COND_NOT . factor
+   36 condicionFinal: COND_NOT . condicionFinal
+   46 condicion: COND_NOT . factor
 
     INLIST      desplazar e ir al estado 6
     OP_REST     desplazar e ir al estado 21
@@ -491,268 +511,278 @@ estado 22
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    condicionFinal  ir al estado 47
-    condicion       ir al estado 29
-    factorDer       ir al estado 30
-    inlist          ir al estado 31
-    factor          ir al estado 48
+    condicionFinal  ir al estado 48
+    condicion       ir al estado 30
+    factorIzq       ir al estado 31
+    inlist          ir al estado 32
+    factor          ir al estado 49
 
 
 estado 23
 
-   28 condicionFinal: P_A . condicionFinal COND_AND condicion P_C
-   30               | P_A . condicionFinal COND_OR condicion P_C
-   32               | P_A . COND_NOT condicion P_C
-   33               | P_A . condicion P_C
+   33 condicionFinal: P_A . condicionFinal COND_AND condicion P_C
+   35               | P_A . condicionFinal COND_OR condicion P_C
+   37               | P_A . COND_NOT condicion P_C
+   38               | P_A . condicion P_C
 
     INLIST      desplazar e ir al estado 6
     OP_REST     desplazar e ir al estado 21
-    COND_NOT    desplazar e ir al estado 49
+    COND_NOT    desplazar e ir al estado 50
     P_A         desplazar e ir al estado 23
     ID          desplazar e ir al estado 24
     CTE_INT     desplazar e ir al estado 25
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    condicionFinal  ir al estado 50
-    condicion       ir al estado 51
-    factorDer       ir al estado 30
-    inlist          ir al estado 31
-    factor          ir al estado 32
+    condicionFinal  ir al estado 51
+    condicion       ir al estado 52
+    factorIzq       ir al estado 31
+    inlist          ir al estado 32
+    factor          ir al estado 33
 
 
 estado 24
 
-   76 factor: ID .
+   82 factor: ID .
 
-    $default  reduce usando la regla 76 (factor)
+    $default  reduce usando la regla 82 (factor)
 
 
 estado 25
 
-   77 factor: CTE_INT .
+   83 factor: CTE_INT .
 
-    $default  reduce usando la regla 77 (factor)
+    $default  reduce usando la regla 83 (factor)
 
 
 estado 26
 
-   80 factor: CTE_FLOAT .
+   86 factor: CTE_FLOAT .
 
-    $default  reduce usando la regla 80 (factor)
+    $default  reduce usando la regla 86 (factor)
 
 
 estado 27
 
-   79 factor: CTE_STRING .
+   85 factor: CTE_STRING .
 
-    $default  reduce usando la regla 79 (factor)
+    $default  reduce usando la regla 85 (factor)
 
 
 estado 28
 
-   22 while: WHILE condicionFinal . LL_A sentencia LL_C
-   27 condicionFinal: condicionFinal . COND_AND condicion
-   29               | condicionFinal . COND_OR condicion
+   22 while: WHILE condicionWhile . LL_A sentenciaWhile LL_C
 
-    COND_AND  desplazar e ir al estado 52
-    COND_OR   desplazar e ir al estado 53
-    LL_A      desplazar e ir al estado 54
+    LL_A  desplazar e ir al estado 53
 
 
 estado 29
 
-   34 condicionFinal: condicion .
+   25 condicionWhile: condicionFinal .
+   32 condicionFinal: condicionFinal . COND_AND condicion
+   34               | condicionFinal . COND_OR condicion
 
-    $default  reduce usando la regla 34 (condicionFinal)
+    COND_AND  desplazar e ir al estado 54
+    COND_OR   desplazar e ir al estado 55
+
+    $default  reduce usando la regla 25 (condicionWhile)
 
 
 estado 30
 
-   35 condicion: factorDer . COMP_MEN factorIzq
-   36          | factorDer . COMP_MAY factorIzq
-   37          | factorDer . COMP_MENOI factorIzq
-   38          | factorDer . COMP_MAYOI factorIzq
-   39          | factorDer . COMP_IGUAL factorIzq
-   40          | factorDer . COMP_DIST factorIzq
+   39 condicionFinal: condicion .
 
-    COMP_DIST   desplazar e ir al estado 55
-    COMP_MAY    desplazar e ir al estado 56
-    COMP_MEN    desplazar e ir al estado 57
-    COMP_IGUAL  desplazar e ir al estado 58
-    COMP_MAYOI  desplazar e ir al estado 59
-    COMP_MENOI  desplazar e ir al estado 60
+    $default  reduce usando la regla 39 (condicionFinal)
 
 
 estado 31
 
-   42 condicion: inlist .
+   40 condicion: factorIzq . COMP_MEN factorDer
+   41          | factorIzq . COMP_MAY factorDer
+   42          | factorIzq . COMP_MENOI factorDer
+   43          | factorIzq . COMP_MAYOI factorDer
+   44          | factorIzq . COMP_IGUAL factorDer
+   45          | factorIzq . COMP_DIST factorDer
 
-    $default  reduce usando la regla 42 (condicion)
+    COMP_DIST   desplazar e ir al estado 56
+    COMP_MAY    desplazar e ir al estado 57
+    COMP_MEN    desplazar e ir al estado 58
+    COMP_IGUAL  desplazar e ir al estado 59
+    COMP_MAYOI  desplazar e ir al estado 60
+    COMP_MENOI  desplazar e ir al estado 61
 
 
 estado 32
 
-   43 factorDer: factor .
+   47 condicion: inlist .
 
-    $default  reduce usando la regla 43 (factorDer)
+    $default  reduce usando la regla 47 (condicion)
 
 
 estado 33
 
-   23 if: IF condicionFinal . LL_A sentenciaV LL_C
-   24   | IF condicionFinal . LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C
-   27 condicionFinal: condicionFinal . COND_AND condicion
-   29               | condicionFinal . COND_OR condicion
+   49 factorIzq: factor .
 
-    COND_AND  desplazar e ir al estado 52
-    COND_OR   desplazar e ir al estado 53
-    LL_A      desplazar e ir al estado 61
+    $default  reduce usando la regla 49 (factorIzq)
 
 
 estado 34
 
-   74 write: WRITE factor .
+   26 if: IF condicionFinal . LL_A sentenciaV LL_C
+   27   | IF condicionFinal . LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C
+   32 condicionFinal: condicionFinal . COND_AND condicion
+   34               | condicionFinal . COND_OR condicion
 
-    $default  reduce usando la regla 74 (write)
+    COND_AND  desplazar e ir al estado 54
+    COND_OR   desplazar e ir al estado 55
+    LL_A      desplazar e ir al estado 62
 
 
 estado 35
 
-   75 read: READ ID .
+   80 write: WRITE factor .
 
-    $default  reduce usando la regla 75 (read)
+    $default  reduce usando la regla 80 (write)
 
 
 estado 36
+
+   81 read: READ ID .
+
+    $default  reduce usando la regla 81 (read)
+
+
+estado 37
 
    11 listaID: ID .
 
     $default  reduce usando la regla 11 (listaID)
 
 
-estado 37
+estado 38
 
     7 declaracion: DECVAR listaDeclaraciones . ENDDEC
     8 listaDeclaraciones: listaDeclaraciones . listaID DP tipoDato
 
-    ENDDEC  desplazar e ir al estado 62
-    ID      desplazar e ir al estado 36
+    ENDDEC  desplazar e ir al estado 63
+    ID      desplazar e ir al estado 37
 
-    listaID  ir al estado 63
-
-
-estado 38
-
-    9 listaDeclaraciones: listaID . DP tipoDato
-   10 listaID: listaID . COMA ID
-
-    COMA  desplazar e ir al estado 64
-    DP    desplazar e ir al estado 65
+    listaID  ir al estado 64
 
 
 estado 39
 
-   47 inlist: INLIST P_A . ID PYC C_A listaExpresiones C_C P_C
+    9 listaDeclaraciones: listaID . DP tipoDato
+   10 listaID: listaID . COMA ID
 
-    ID  desplazar e ir al estado 66
+    COMA  desplazar e ir al estado 65
+    DP    desplazar e ir al estado 66
 
 
 estado 40
 
-   48 take: TAKE P_A . signo PYC CTE_INT PYC C_A valores C_C P_C
+   52 inlist: INLIST P_A . ID PYC C_A listaExpresiones C_C P_C
 
-    OP_MAS   desplazar e ir al estado 67
-    OP_REST  desplazar e ir al estado 68
-    OP_MULT  desplazar e ir al estado 69
-    OP_DIV   desplazar e ir al estado 70
-
-    signo  ir al estado 71
+    ID  desplazar e ir al estado 67
 
 
 estado 41
 
-   45 asign: ID OP_ASIG . expresion
-   46      | ID OP_ASIG . CTE_STRING
+   54 take: TAKE P_A . signo PYC CTE_INT $@1 PYC C_A valores C_C P_C
 
-    OP_REST     desplazar e ir al estado 72
-    P_A         desplazar e ir al estado 73
-    ID          desplazar e ir al estado 74
-    CTE_INT     desplazar e ir al estado 75
-    CTE_FLOAT   desplazar e ir al estado 76
-    CTE_STRING  desplazar e ir al estado 77
+    OP_MAS   desplazar e ir al estado 68
+    OP_REST  desplazar e ir al estado 69
+    OP_MULT  desplazar e ir al estado 70
+    OP_DIV   desplazar e ir al estado 71
 
-    expresion  ir al estado 78
-    termino    ir al estado 79
-    operando   ir al estado 80
+    signo  ir al estado 72
 
 
 estado 42
+
+   50 asign: ID OP_ASIG . expresion
+   51      | ID OP_ASIG . CTE_STRING
+
+    TAKE        desplazar e ir al estado 7
+    OP_REST     desplazar e ir al estado 73
+    P_A         desplazar e ir al estado 74
+    ID          desplazar e ir al estado 75
+    CTE_INT     desplazar e ir al estado 76
+    CTE_FLOAT   desplazar e ir al estado 77
+    CTE_STRING  desplazar e ir al estado 78
+
+    take       ir al estado 79
+    expresion  ir al estado 80
+    termino    ir al estado 81
+    operando   ir al estado 82
+
+
+estado 43
 
     0 $accept: programaFinal $end .
 
     $default  aceptar
 
 
-estado 43
+estado 44
 
     3 sentencia: sentencia declaracion .
 
     $default  reduce usando la regla 3 (sentencia)
 
 
-estado 44
+estado 45
 
     4 sentencia: sentencia estructura .
 
     $default  reduce usando la regla 4 (sentencia)
 
 
-estado 45
-
-   78 factor: OP_REST CTE_INT .
-
-    $default  reduce usando la regla 78 (factor)
-
-
 estado 46
 
-   81 factor: OP_REST CTE_FLOAT .
+   84 factor: OP_REST CTE_INT .
 
-    $default  reduce usando la regla 81 (factor)
+    $default  reduce usando la regla 84 (factor)
 
 
 estado 47
 
-   27 condicionFinal: condicionFinal . COND_AND condicion
-   29               | condicionFinal . COND_OR condicion
-   31               | COND_NOT condicionFinal .
+   87 factor: OP_REST CTE_FLOAT .
 
-    COND_AND  desplazar e ir al estado 52
-    COND_OR   desplazar e ir al estado 53
-
-    COND_AND  [reduce usando la regla 31 (condicionFinal)]
-    COND_OR   [reduce usando la regla 31 (condicionFinal)]
-    $default  reduce usando la regla 31 (condicionFinal)
+    $default  reduce usando la regla 87 (factor)
 
 
 estado 48
 
-   41 condicion: COND_NOT factor .
-   43 factorDer: factor .
+   32 condicionFinal: condicionFinal . COND_AND condicion
+   34               | condicionFinal . COND_OR condicion
+   36               | COND_NOT condicionFinal .
 
-    COND_AND  reduce usando la regla 41 (condicion)
-    COND_OR   reduce usando la regla 41 (condicion)
-    P_C       reduce usando la regla 41 (condicion)
-    LL_A      reduce usando la regla 41 (condicion)
-    $default  reduce usando la regla 43 (factorDer)
+    COND_AND  desplazar e ir al estado 54
+    COND_OR   desplazar e ir al estado 55
+
+    COND_AND  [reduce usando la regla 36 (condicionFinal)]
+    COND_OR   [reduce usando la regla 36 (condicionFinal)]
+    $default  reduce usando la regla 36 (condicionFinal)
 
 
 estado 49
 
-   31 condicionFinal: COND_NOT . condicionFinal
-   32               | P_A COND_NOT . condicion P_C
-   41 condicion: COND_NOT . factor
+   46 condicion: COND_NOT factor .
+   49 factorIzq: factor .
+
+    COND_AND  reduce usando la regla 46 (condicion)
+    COND_OR   reduce usando la regla 46 (condicion)
+    P_C       reduce usando la regla 46 (condicion)
+    LL_A      reduce usando la regla 46 (condicion)
+    $default  reduce usando la regla 49 (factorIzq)
+
+
+estado 50
+
+   36 condicionFinal: COND_NOT . condicionFinal
+   37               | P_A COND_NOT . condicion P_C
+   46 condicion: COND_NOT . factor
 
     INLIST      desplazar e ir al estado 6
     OP_REST     desplazar e ir al estado 21
@@ -763,112 +793,96 @@ estado 49
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    condicionFinal  ir al estado 47
-    condicion       ir al estado 81
-    factorDer       ir al estado 30
-    inlist          ir al estado 31
-    factor          ir al estado 48
-
-
-estado 50
-
-   27 condicionFinal: condicionFinal . COND_AND condicion
-   28               | P_A condicionFinal . COND_AND condicion P_C
-   29               | condicionFinal . COND_OR condicion
-   30               | P_A condicionFinal . COND_OR condicion P_C
-
-    COND_AND  desplazar e ir al estado 82
-    COND_OR   desplazar e ir al estado 83
+    condicionFinal  ir al estado 48
+    condicion       ir al estado 83
+    factorIzq       ir al estado 31
+    inlist          ir al estado 32
+    factor          ir al estado 49
 
 
 estado 51
 
-   33 condicionFinal: P_A condicion . P_C
-   34               | condicion .
+   32 condicionFinal: condicionFinal . COND_AND condicion
+   33               | P_A condicionFinal . COND_AND condicion P_C
+   34               | condicionFinal . COND_OR condicion
+   35               | P_A condicionFinal . COND_OR condicion P_C
 
-    P_C  desplazar e ir al estado 84
-
-    $default  reduce usando la regla 34 (condicionFinal)
+    COND_AND  desplazar e ir al estado 84
+    COND_OR   desplazar e ir al estado 85
 
 
 estado 52
 
-   27 condicionFinal: condicionFinal COND_AND . condicion
+   38 condicionFinal: P_A condicion . P_C
+   39               | condicion .
 
-    INLIST      desplazar e ir al estado 6
-    OP_REST     desplazar e ir al estado 21
-    COND_NOT    desplazar e ir al estado 85
-    ID          desplazar e ir al estado 24
-    CTE_INT     desplazar e ir al estado 25
-    CTE_FLOAT   desplazar e ir al estado 26
-    CTE_STRING  desplazar e ir al estado 27
+    P_C  desplazar e ir al estado 86
 
-    condicion  ir al estado 86
-    factorDer  ir al estado 30
-    inlist     ir al estado 31
-    factor     ir al estado 32
+    $default  reduce usando la regla 39 (condicionFinal)
 
 
 estado 53
 
-   29 condicionFinal: condicionFinal COND_OR . condicion
+   22 while: WHILE condicionWhile LL_A . sentenciaWhile LL_C
 
-    INLIST      desplazar e ir al estado 6
-    OP_REST     desplazar e ir al estado 21
-    COND_NOT    desplazar e ir al estado 85
-    ID          desplazar e ir al estado 24
-    CTE_INT     desplazar e ir al estado 25
-    CTE_FLOAT   desplazar e ir al estado 26
-    CTE_STRING  desplazar e ir al estado 27
+    WHILE   desplazar e ir al estado 1
+    IF      desplazar e ir al estado 2
+    WRITE   desplazar e ir al estado 3
+    READ    desplazar e ir al estado 4
+    INLIST  desplazar e ir al estado 6
+    TAKE    desplazar e ir al estado 7
+    ID      desplazar e ir al estado 8
 
-    condicion  ir al estado 87
-    factorDer  ir al estado 30
-    inlist     ir al estado 31
-    factor     ir al estado 32
+    estructura      ir al estado 87
+    while           ir al estado 14
+    sentenciaWhile  ir al estado 88
+    if              ir al estado 15
+    asign           ir al estado 16
+    inlist          ir al estado 17
+    take            ir al estado 18
+    write           ir al estado 19
+    read            ir al estado 20
 
 
 estado 54
 
-   22 while: WHILE condicionFinal LL_A . sentencia LL_C
+   32 condicionFinal: condicionFinal COND_AND . condicion
 
-    WHILE   desplazar e ir al estado 1
-    IF      desplazar e ir al estado 2
-    WRITE   desplazar e ir al estado 3
-    READ    desplazar e ir al estado 4
-    DECVAR  desplazar e ir al estado 5
-    INLIST  desplazar e ir al estado 6
-    TAKE    desplazar e ir al estado 7
-    ID      desplazar e ir al estado 8
+    INLIST      desplazar e ir al estado 6
+    OP_REST     desplazar e ir al estado 21
+    COND_NOT    desplazar e ir al estado 89
+    ID          desplazar e ir al estado 24
+    CTE_INT     desplazar e ir al estado 25
+    CTE_FLOAT   desplazar e ir al estado 26
+    CTE_STRING  desplazar e ir al estado 27
 
-    sentencia    ir al estado 88
-    declaracion  ir al estado 12
-    estructura   ir al estado 13
-    while        ir al estado 14
-    if           ir al estado 15
-    asign        ir al estado 16
-    inlist       ir al estado 17
-    take         ir al estado 18
-    write        ir al estado 19
-    read         ir al estado 20
+    condicion  ir al estado 90
+    factorIzq  ir al estado 31
+    inlist     ir al estado 32
+    factor     ir al estado 33
 
 
 estado 55
 
-   40 condicion: factorDer COMP_DIST . factorIzq
+   34 condicionFinal: condicionFinal COND_OR . condicion
 
+    INLIST      desplazar e ir al estado 6
     OP_REST     desplazar e ir al estado 21
+    COND_NOT    desplazar e ir al estado 89
     ID          desplazar e ir al estado 24
     CTE_INT     desplazar e ir al estado 25
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factorIzq  ir al estado 89
-    factor     ir al estado 90
+    condicion  ir al estado 91
+    factorIzq  ir al estado 31
+    inlist     ir al estado 32
+    factor     ir al estado 33
 
 
 estado 56
 
-   36 condicion: factorDer COMP_MAY . factorIzq
+   45 condicion: factorIzq COMP_DIST . factorDer
 
     OP_REST     desplazar e ir al estado 21
     ID          desplazar e ir al estado 24
@@ -876,13 +890,13 @@ estado 56
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factorIzq  ir al estado 91
-    factor     ir al estado 90
+    factorDer  ir al estado 92
+    factor     ir al estado 93
 
 
 estado 57
 
-   35 condicion: factorDer COMP_MEN . factorIzq
+   41 condicion: factorIzq COMP_MAY . factorDer
 
     OP_REST     desplazar e ir al estado 21
     ID          desplazar e ir al estado 24
@@ -890,13 +904,13 @@ estado 57
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factorIzq  ir al estado 92
-    factor     ir al estado 90
+    factorDer  ir al estado 94
+    factor     ir al estado 93
 
 
 estado 58
 
-   39 condicion: factorDer COMP_IGUAL . factorIzq
+   40 condicion: factorIzq COMP_MEN . factorDer
 
     OP_REST     desplazar e ir al estado 21
     ID          desplazar e ir al estado 24
@@ -904,13 +918,13 @@ estado 58
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factorIzq  ir al estado 93
-    factor     ir al estado 90
+    factorDer  ir al estado 95
+    factor     ir al estado 93
 
 
 estado 59
 
-   38 condicion: factorDer COMP_MAYOI . factorIzq
+   44 condicion: factorIzq COMP_IGUAL . factorDer
 
     OP_REST     desplazar e ir al estado 21
     ID          desplazar e ir al estado 24
@@ -918,13 +932,13 @@ estado 59
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factorIzq  ir al estado 94
-    factor     ir al estado 90
+    factorDer  ir al estado 96
+    factor     ir al estado 93
 
 
 estado 60
 
-   37 condicion: factorDer COMP_MENOI . factorIzq
+   43 condicion: factorIzq COMP_MAYOI . factorDer
 
     OP_REST     desplazar e ir al estado 21
     ID          desplazar e ir al estado 24
@@ -932,30 +946,42 @@ estado 60
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factorIzq  ir al estado 95
-    factor     ir al estado 90
+    factorDer  ir al estado 97
+    factor     ir al estado 93
 
 
 estado 61
 
-   23 if: IF condicionFinal LL_A . sentenciaV LL_C
-   24   | IF condicionFinal LL_A . sentenciaV LL_C ELSE LL_A sentenciaF LL_C
+   42 condicion: factorIzq COMP_MENOI . factorDer
+
+    OP_REST     desplazar e ir al estado 21
+    ID          desplazar e ir al estado 24
+    CTE_INT     desplazar e ir al estado 25
+    CTE_FLOAT   desplazar e ir al estado 26
+    CTE_STRING  desplazar e ir al estado 27
+
+    factorDer  ir al estado 98
+    factor     ir al estado 93
+
+
+estado 62
+
+   26 if: IF condicionFinal LL_A . sentenciaV LL_C
+   27   | IF condicionFinal LL_A . sentenciaV LL_C ELSE LL_A sentenciaF LL_C
 
     WHILE   desplazar e ir al estado 1
     IF      desplazar e ir al estado 2
     WRITE   desplazar e ir al estado 3
     READ    desplazar e ir al estado 4
-    DECVAR  desplazar e ir al estado 5
     INLIST  desplazar e ir al estado 6
     TAKE    desplazar e ir al estado 7
     ID      desplazar e ir al estado 8
 
-    sentencia    ir al estado 96
-    declaracion  ir al estado 12
-    estructura   ir al estado 13
+    estructura   ir al estado 99
     while        ir al estado 14
     if           ir al estado 15
-    sentenciaV   ir al estado 97
+    sentenciaIf  ir al estado 100
+    sentenciaV   ir al estado 101
     asign        ir al estado 16
     inlist       ir al estado 17
     take         ir al estado 18
@@ -963,223 +989,263 @@ estado 61
     read         ir al estado 20
 
 
-estado 62
+estado 63
 
     7 declaracion: DECVAR listaDeclaraciones ENDDEC .
 
     $default  reduce usando la regla 7 (declaracion)
 
 
-estado 63
+estado 64
 
     8 listaDeclaraciones: listaDeclaraciones listaID . DP tipoDato
    10 listaID: listaID . COMA ID
 
-    COMA  desplazar e ir al estado 64
-    DP    desplazar e ir al estado 98
-
-
-estado 64
-
-   10 listaID: listaID COMA . ID
-
-    ID  desplazar e ir al estado 99
+    COMA  desplazar e ir al estado 65
+    DP    desplazar e ir al estado 102
 
 
 estado 65
 
-    9 listaDeclaraciones: listaID DP . tipoDato
+   10 listaID: listaID COMA . ID
 
-    FLOAT   desplazar e ir al estado 100
-    STRING  desplazar e ir al estado 101
-    INT     desplazar e ir al estado 102
-
-    tipoDato  ir al estado 103
+    ID  desplazar e ir al estado 103
 
 
 estado 66
 
-   47 inlist: INLIST P_A ID . PYC C_A listaExpresiones C_C P_C
+    9 listaDeclaraciones: listaID DP . tipoDato
 
-    PYC  desplazar e ir al estado 104
+    FLOAT   desplazar e ir al estado 104
+    STRING  desplazar e ir al estado 105
+    INT     desplazar e ir al estado 106
+
+    tipoDato  ir al estado 107
 
 
 estado 67
 
-   49 signo: OP_MAS .
+   52 inlist: INLIST P_A ID . PYC C_A listaExpresiones C_C P_C
 
-    $default  reduce usando la regla 49 (signo)
+    PYC  desplazar e ir al estado 108
 
 
 estado 68
 
-   50 signo: OP_REST .
+   55 signo: OP_MAS .
 
-    $default  reduce usando la regla 50 (signo)
+    $default  reduce usando la regla 55 (signo)
 
 
 estado 69
 
-   51 signo: OP_MULT .
+   56 signo: OP_REST .
 
-    $default  reduce usando la regla 51 (signo)
+    $default  reduce usando la regla 56 (signo)
 
 
 estado 70
 
-   52 signo: OP_DIV .
+   57 signo: OP_MULT .
 
-    $default  reduce usando la regla 52 (signo)
+    $default  reduce usando la regla 57 (signo)
 
 
 estado 71
 
-   48 take: TAKE P_A signo . PYC CTE_INT PYC C_A valores C_C P_C
+   58 signo: OP_DIV .
 
-    PYC  desplazar e ir al estado 105
+    $default  reduce usando la regla 58 (signo)
 
 
 estado 72
 
-   69 operando: OP_REST . CTE_INT
-   71         | OP_REST . CTE_FLOAT
+   54 take: TAKE P_A signo . PYC CTE_INT $@1 PYC C_A valores C_C P_C
 
-    CTE_INT    desplazar e ir al estado 106
-    CTE_FLOAT  desplazar e ir al estado 107
+    PYC  desplazar e ir al estado 109
 
 
 estado 73
 
-   73 operando: P_A . expresion P_C
+   74 operando: OP_REST . CTE_INT
+   76         | OP_REST . CTE_FLOAT
 
-    OP_REST    desplazar e ir al estado 72
-    P_A        desplazar e ir al estado 73
-    ID         desplazar e ir al estado 74
-    CTE_INT    desplazar e ir al estado 75
-    CTE_FLOAT  desplazar e ir al estado 76
-
-    expresion  ir al estado 108
-    termino    ir al estado 79
-    operando   ir al estado 80
+    CTE_INT    desplazar e ir al estado 110
+    CTE_FLOAT  desplazar e ir al estado 111
 
 
 estado 74
 
-   72 operando: ID .
+   78 operando: P_A . expresion P_C
 
-    $default  reduce usando la regla 72 (operando)
+    TAKE       desplazar e ir al estado 7
+    OP_REST    desplazar e ir al estado 73
+    P_A        desplazar e ir al estado 74
+    ID         desplazar e ir al estado 75
+    CTE_INT    desplazar e ir al estado 76
+    CTE_FLOAT  desplazar e ir al estado 77
+
+    take       ir al estado 79
+    expresion  ir al estado 112
+    termino    ir al estado 81
+    operando   ir al estado 82
 
 
 estado 75
 
-   68 operando: CTE_INT .
+   77 operando: ID .
 
-    $default  reduce usando la regla 68 (operando)
+    $default  reduce usando la regla 77 (operando)
 
 
 estado 76
 
-   70 operando: CTE_FLOAT .
+   73 operando: CTE_INT .
 
-    $default  reduce usando la regla 70 (operando)
+    $default  reduce usando la regla 73 (operando)
 
 
 estado 77
 
-   46 asign: ID OP_ASIG CTE_STRING .
+   75 operando: CTE_FLOAT .
 
-    $default  reduce usando la regla 46 (asign)
+    $default  reduce usando la regla 75 (operando)
 
 
 estado 78
 
-   45 asign: ID OP_ASIG expresion .
-   62 expresion: expresion . OP_MAS termino
-   63          | expresion . OP_REST termino
+   51 asign: ID OP_ASIG CTE_STRING .
 
-    OP_MAS   desplazar e ir al estado 109
-    OP_REST  desplazar e ir al estado 110
-
-    $default  reduce usando la regla 45 (asign)
+    $default  reduce usando la regla 51 (asign)
 
 
 estado 79
 
-   64 expresion: termino .
-   65 termino: termino . OP_DIV operando
-   66        | termino . OP_MULT operando
+   79 operando: take .
 
-    OP_MULT  desplazar e ir al estado 111
-    OP_DIV   desplazar e ir al estado 112
-
-    $default  reduce usando la regla 64 (expresion)
+    $default  reduce usando la regla 79 (operando)
 
 
 estado 80
 
-   67 termino: operando .
+   50 asign: ID OP_ASIG expresion .
+   67 expresion: expresion . OP_MAS termino
+   68          | expresion . OP_REST termino
 
-    $default  reduce usando la regla 67 (termino)
+    OP_MAS   desplazar e ir al estado 113
+    OP_REST  desplazar e ir al estado 114
+
+    $default  reduce usando la regla 50 (asign)
 
 
 estado 81
 
-   32 condicionFinal: P_A COND_NOT condicion . P_C
-   34               | condicion .
+   69 expresion: termino .
+   70 termino: termino . OP_DIV operando
+   71        | termino . OP_MULT operando
 
-    P_C  desplazar e ir al estado 113
+    OP_MULT  desplazar e ir al estado 115
+    OP_DIV   desplazar e ir al estado 116
 
-    $default  reduce usando la regla 34 (condicionFinal)
+    $default  reduce usando la regla 69 (expresion)
 
 
 estado 82
 
-   27 condicionFinal: condicionFinal COND_AND . condicion
-   28               | P_A condicionFinal COND_AND . condicion P_C
+   72 termino: operando .
 
-    INLIST      desplazar e ir al estado 6
-    OP_REST     desplazar e ir al estado 21
-    COND_NOT    desplazar e ir al estado 85
-    ID          desplazar e ir al estado 24
-    CTE_INT     desplazar e ir al estado 25
-    CTE_FLOAT   desplazar e ir al estado 26
-    CTE_STRING  desplazar e ir al estado 27
-
-    condicion  ir al estado 114
-    factorDer  ir al estado 30
-    inlist     ir al estado 31
-    factor     ir al estado 32
+    $default  reduce usando la regla 72 (termino)
 
 
 estado 83
 
-   29 condicionFinal: condicionFinal COND_OR . condicion
-   30               | P_A condicionFinal COND_OR . condicion P_C
+   37 condicionFinal: P_A COND_NOT condicion . P_C
+   39               | condicion .
 
-    INLIST      desplazar e ir al estado 6
-    OP_REST     desplazar e ir al estado 21
-    COND_NOT    desplazar e ir al estado 85
-    ID          desplazar e ir al estado 24
-    CTE_INT     desplazar e ir al estado 25
-    CTE_FLOAT   desplazar e ir al estado 26
-    CTE_STRING  desplazar e ir al estado 27
+    P_C  desplazar e ir al estado 117
 
-    condicion  ir al estado 115
-    factorDer  ir al estado 30
-    inlist     ir al estado 31
-    factor     ir al estado 32
+    $default  reduce usando la regla 39 (condicionFinal)
 
 
 estado 84
 
-   33 condicionFinal: P_A condicion P_C .
+   32 condicionFinal: condicionFinal COND_AND . condicion
+   33               | P_A condicionFinal COND_AND . condicion P_C
 
-    $default  reduce usando la regla 33 (condicionFinal)
+    INLIST      desplazar e ir al estado 6
+    OP_REST     desplazar e ir al estado 21
+    COND_NOT    desplazar e ir al estado 89
+    ID          desplazar e ir al estado 24
+    CTE_INT     desplazar e ir al estado 25
+    CTE_FLOAT   desplazar e ir al estado 26
+    CTE_STRING  desplazar e ir al estado 27
+
+    condicion  ir al estado 118
+    factorIzq  ir al estado 31
+    inlist     ir al estado 32
+    factor     ir al estado 33
 
 
 estado 85
 
-   41 condicion: COND_NOT . factor
+   34 condicionFinal: condicionFinal COND_OR . condicion
+   35               | P_A condicionFinal COND_OR . condicion P_C
+
+    INLIST      desplazar e ir al estado 6
+    OP_REST     desplazar e ir al estado 21
+    COND_NOT    desplazar e ir al estado 89
+    ID          desplazar e ir al estado 24
+    CTE_INT     desplazar e ir al estado 25
+    CTE_FLOAT   desplazar e ir al estado 26
+    CTE_STRING  desplazar e ir al estado 27
+
+    condicion  ir al estado 119
+    factorIzq  ir al estado 31
+    inlist     ir al estado 32
+    factor     ir al estado 33
+
+
+estado 86
+
+   38 condicionFinal: P_A condicion P_C .
+
+    $default  reduce usando la regla 38 (condicionFinal)
+
+
+estado 87
+
+   24 sentenciaWhile: estructura .
+
+    $default  reduce usando la regla 24 (sentenciaWhile)
+
+
+estado 88
+
+   22 while: WHILE condicionWhile LL_A sentenciaWhile . LL_C
+   23 sentenciaWhile: sentenciaWhile . estructura
+
+    WHILE   desplazar e ir al estado 1
+    IF      desplazar e ir al estado 2
+    WRITE   desplazar e ir al estado 3
+    READ    desplazar e ir al estado 4
+    INLIST  desplazar e ir al estado 6
+    TAKE    desplazar e ir al estado 7
+    LL_C    desplazar e ir al estado 120
+    ID      desplazar e ir al estado 8
+
+    estructura  ir al estado 121
+    while       ir al estado 14
+    if          ir al estado 15
+    asign       ir al estado 16
+    inlist      ir al estado 17
+    take        ir al estado 18
+    write       ir al estado 19
+    read        ir al estado 20
+
+
+estado 89
+
+   46 condicion: COND_NOT . factor
 
     OP_REST     desplazar e ir al estado 21
     ID          desplazar e ir al estado 24
@@ -1187,531 +1253,469 @@ estado 85
     CTE_FLOAT   desplazar e ir al estado 26
     CTE_STRING  desplazar e ir al estado 27
 
-    factor  ir al estado 116
-
-
-estado 86
-
-   27 condicionFinal: condicionFinal COND_AND condicion .
-
-    $default  reduce usando la regla 27 (condicionFinal)
-
-
-estado 87
-
-   29 condicionFinal: condicionFinal COND_OR condicion .
-
-    $default  reduce usando la regla 29 (condicionFinal)
-
-
-estado 88
-
-    3 sentencia: sentencia . declaracion
-    4          | sentencia . estructura
-   22 while: WHILE condicionFinal LL_A sentencia . LL_C
-
-    WHILE   desplazar e ir al estado 1
-    IF      desplazar e ir al estado 2
-    WRITE   desplazar e ir al estado 3
-    READ    desplazar e ir al estado 4
-    DECVAR  desplazar e ir al estado 5
-    INLIST  desplazar e ir al estado 6
-    TAKE    desplazar e ir al estado 7
-    LL_C    desplazar e ir al estado 117
-    ID      desplazar e ir al estado 8
-
-    declaracion  ir al estado 43
-    estructura   ir al estado 44
-    while        ir al estado 14
-    if           ir al estado 15
-    asign        ir al estado 16
-    inlist       ir al estado 17
-    take         ir al estado 18
-    write        ir al estado 19
-    read         ir al estado 20
-
-
-estado 89
-
-   40 condicion: factorDer COMP_DIST factorIzq .
-
-    $default  reduce usando la regla 40 (condicion)
+    factor  ir al estado 122
 
 
 estado 90
 
-   44 factorIzq: factor .
+   32 condicionFinal: condicionFinal COND_AND condicion .
 
-    $default  reduce usando la regla 44 (factorIzq)
+    $default  reduce usando la regla 32 (condicionFinal)
 
 
 estado 91
 
-   36 condicion: factorDer COMP_MAY factorIzq .
+   34 condicionFinal: condicionFinal COND_OR condicion .
 
-    $default  reduce usando la regla 36 (condicion)
+    $default  reduce usando la regla 34 (condicionFinal)
 
 
 estado 92
 
-   35 condicion: factorDer COMP_MEN factorIzq .
+   45 condicion: factorIzq COMP_DIST factorDer .
 
-    $default  reduce usando la regla 35 (condicion)
+    $default  reduce usando la regla 45 (condicion)
 
 
 estado 93
 
-   39 condicion: factorDer COMP_IGUAL factorIzq .
+   48 factorDer: factor .
 
-    $default  reduce usando la regla 39 (condicion)
+    $default  reduce usando la regla 48 (factorDer)
 
 
 estado 94
 
-   38 condicion: factorDer COMP_MAYOI factorIzq .
+   41 condicion: factorIzq COMP_MAY factorDer .
 
-    $default  reduce usando la regla 38 (condicion)
+    $default  reduce usando la regla 41 (condicion)
 
 
 estado 95
 
-   37 condicion: factorDer COMP_MENOI factorIzq .
+   40 condicion: factorIzq COMP_MEN factorDer .
 
-    $default  reduce usando la regla 37 (condicion)
+    $default  reduce usando la regla 40 (condicion)
 
 
 estado 96
 
-    3 sentencia: sentencia . declaracion
-    4          | sentencia . estructura
-   25 sentenciaV: sentencia .
+   44 condicion: factorIzq COMP_IGUAL factorDer .
+
+    $default  reduce usando la regla 44 (condicion)
+
+
+estado 97
+
+   43 condicion: factorIzq COMP_MAYOI factorDer .
+
+    $default  reduce usando la regla 43 (condicion)
+
+
+estado 98
+
+   42 condicion: factorIzq COMP_MENOI factorDer .
+
+    $default  reduce usando la regla 42 (condicion)
+
+
+estado 99
+
+   29 sentenciaIf: estructura .
+
+    $default  reduce usando la regla 29 (sentenciaIf)
+
+
+estado 100
+
+   28 sentenciaIf: sentenciaIf . estructura
+   30 sentenciaV: sentenciaIf .
 
     WHILE   desplazar e ir al estado 1
     IF      desplazar e ir al estado 2
     WRITE   desplazar e ir al estado 3
     READ    desplazar e ir al estado 4
-    DECVAR  desplazar e ir al estado 5
     INLIST  desplazar e ir al estado 6
     TAKE    desplazar e ir al estado 7
     ID      desplazar e ir al estado 8
 
-    $default  reduce usando la regla 25 (sentenciaV)
+    $default  reduce usando la regla 30 (sentenciaV)
 
-    declaracion  ir al estado 43
-    estructura   ir al estado 44
-    while        ir al estado 14
-    if           ir al estado 15
-    asign        ir al estado 16
-    inlist       ir al estado 17
-    take         ir al estado 18
-    write        ir al estado 19
-    read         ir al estado 20
-
-
-estado 97
-
-   23 if: IF condicionFinal LL_A sentenciaV . LL_C
-   24   | IF condicionFinal LL_A sentenciaV . LL_C ELSE LL_A sentenciaF LL_C
-
-    LL_C  desplazar e ir al estado 118
+    estructura  ir al estado 123
+    while       ir al estado 14
+    if          ir al estado 15
+    asign       ir al estado 16
+    inlist      ir al estado 17
+    take        ir al estado 18
+    write       ir al estado 19
+    read        ir al estado 20
 
 
-estado 98
+estado 101
+
+   26 if: IF condicionFinal LL_A sentenciaV . LL_C
+   27   | IF condicionFinal LL_A sentenciaV . LL_C ELSE LL_A sentenciaF LL_C
+
+    LL_C  desplazar e ir al estado 124
+
+
+estado 102
 
     8 listaDeclaraciones: listaDeclaraciones listaID DP . tipoDato
 
-    FLOAT   desplazar e ir al estado 100
-    STRING  desplazar e ir al estado 101
-    INT     desplazar e ir al estado 102
+    FLOAT   desplazar e ir al estado 104
+    STRING  desplazar e ir al estado 105
+    INT     desplazar e ir al estado 106
 
-    tipoDato  ir al estado 119
+    tipoDato  ir al estado 125
 
 
-estado 99
+estado 103
 
    10 listaID: listaID COMA ID .
 
     $default  reduce usando la regla 10 (listaID)
 
 
-estado 100
+estado 104
 
    14 tipoDato: FLOAT .
 
     $default  reduce usando la regla 14 (tipoDato)
 
 
-estado 101
+estado 105
 
    12 tipoDato: STRING .
 
     $default  reduce usando la regla 12 (tipoDato)
 
 
-estado 102
+estado 106
 
    13 tipoDato: INT .
 
     $default  reduce usando la regla 13 (tipoDato)
 
 
-estado 103
+estado 107
 
     9 listaDeclaraciones: listaID DP tipoDato .
 
     $default  reduce usando la regla 9 (listaDeclaraciones)
 
 
-estado 104
-
-   47 inlist: INLIST P_A ID PYC . C_A listaExpresiones C_C P_C
-
-    C_A  desplazar e ir al estado 120
-
-
-estado 105
-
-   48 take: TAKE P_A signo PYC . CTE_INT PYC C_A valores C_C P_C
-
-    CTE_INT  desplazar e ir al estado 121
-
-
-estado 106
-
-   69 operando: OP_REST CTE_INT .
-
-    $default  reduce usando la regla 69 (operando)
-
-
-estado 107
-
-   71 operando: OP_REST CTE_FLOAT .
-
-    $default  reduce usando la regla 71 (operando)
-
-
 estado 108
 
-   62 expresion: expresion . OP_MAS termino
-   63          | expresion . OP_REST termino
-   73 operando: P_A expresion . P_C
+   52 inlist: INLIST P_A ID PYC . C_A listaExpresiones C_C P_C
 
-    OP_MAS   desplazar e ir al estado 109
-    OP_REST  desplazar e ir al estado 110
-    P_C      desplazar e ir al estado 122
+    C_A  desplazar e ir al estado 126
 
 
 estado 109
 
-   62 expresion: expresion OP_MAS . termino
+   54 take: TAKE P_A signo PYC . CTE_INT $@1 PYC C_A valores C_C P_C
 
-    OP_REST    desplazar e ir al estado 72
-    P_A        desplazar e ir al estado 73
-    ID         desplazar e ir al estado 74
-    CTE_INT    desplazar e ir al estado 75
-    CTE_FLOAT  desplazar e ir al estado 76
-
-    termino   ir al estado 123
-    operando  ir al estado 80
+    CTE_INT  desplazar e ir al estado 127
 
 
 estado 110
 
-   63 expresion: expresion OP_REST . termino
+   74 operando: OP_REST CTE_INT .
 
-    OP_REST    desplazar e ir al estado 72
-    P_A        desplazar e ir al estado 73
-    ID         desplazar e ir al estado 74
-    CTE_INT    desplazar e ir al estado 75
-    CTE_FLOAT  desplazar e ir al estado 76
-
-    termino   ir al estado 124
-    operando  ir al estado 80
+    $default  reduce usando la regla 74 (operando)
 
 
 estado 111
 
-   66 termino: termino OP_MULT . operando
+   76 operando: OP_REST CTE_FLOAT .
 
-    OP_REST    desplazar e ir al estado 72
-    P_A        desplazar e ir al estado 73
-    ID         desplazar e ir al estado 74
-    CTE_INT    desplazar e ir al estado 75
-    CTE_FLOAT  desplazar e ir al estado 76
-
-    operando  ir al estado 125
+    $default  reduce usando la regla 76 (operando)
 
 
 estado 112
 
-   65 termino: termino OP_DIV . operando
+   67 expresion: expresion . OP_MAS termino
+   68          | expresion . OP_REST termino
+   78 operando: P_A expresion . P_C
 
-    OP_REST    desplazar e ir al estado 72
-    P_A        desplazar e ir al estado 73
-    ID         desplazar e ir al estado 74
-    CTE_INT    desplazar e ir al estado 75
-    CTE_FLOAT  desplazar e ir al estado 76
-
-    operando  ir al estado 126
+    OP_MAS   desplazar e ir al estado 113
+    OP_REST  desplazar e ir al estado 114
+    P_C      desplazar e ir al estado 128
 
 
 estado 113
 
-   32 condicionFinal: P_A COND_NOT condicion P_C .
+   67 expresion: expresion OP_MAS . termino
 
-    $default  reduce usando la regla 32 (condicionFinal)
+    TAKE       desplazar e ir al estado 7
+    OP_REST    desplazar e ir al estado 73
+    P_A        desplazar e ir al estado 74
+    ID         desplazar e ir al estado 75
+    CTE_INT    desplazar e ir al estado 76
+    CTE_FLOAT  desplazar e ir al estado 77
+
+    take      ir al estado 79
+    termino   ir al estado 129
+    operando  ir al estado 82
 
 
 estado 114
 
-   27 condicionFinal: condicionFinal COND_AND condicion .
-   28               | P_A condicionFinal COND_AND condicion . P_C
+   68 expresion: expresion OP_REST . termino
 
-    P_C  desplazar e ir al estado 127
+    TAKE       desplazar e ir al estado 7
+    OP_REST    desplazar e ir al estado 73
+    P_A        desplazar e ir al estado 74
+    ID         desplazar e ir al estado 75
+    CTE_INT    desplazar e ir al estado 76
+    CTE_FLOAT  desplazar e ir al estado 77
 
-    $default  reduce usando la regla 27 (condicionFinal)
+    take      ir al estado 79
+    termino   ir al estado 130
+    operando  ir al estado 82
 
 
 estado 115
 
-   29 condicionFinal: condicionFinal COND_OR condicion .
-   30               | P_A condicionFinal COND_OR condicion . P_C
+   71 termino: termino OP_MULT . operando
 
-    P_C  desplazar e ir al estado 128
+    TAKE       desplazar e ir al estado 7
+    OP_REST    desplazar e ir al estado 73
+    P_A        desplazar e ir al estado 74
+    ID         desplazar e ir al estado 75
+    CTE_INT    desplazar e ir al estado 76
+    CTE_FLOAT  desplazar e ir al estado 77
 
-    $default  reduce usando la regla 29 (condicionFinal)
+    take      ir al estado 79
+    operando  ir al estado 131
 
 
 estado 116
 
-   41 condicion: COND_NOT factor .
+   70 termino: termino OP_DIV . operando
 
-    $default  reduce usando la regla 41 (condicion)
+    TAKE       desplazar e ir al estado 7
+    OP_REST    desplazar e ir al estado 73
+    P_A        desplazar e ir al estado 74
+    ID         desplazar e ir al estado 75
+    CTE_INT    desplazar e ir al estado 76
+    CTE_FLOAT  desplazar e ir al estado 77
+
+    take      ir al estado 79
+    operando  ir al estado 132
 
 
 estado 117
 
-   22 while: WHILE condicionFinal LL_A sentencia LL_C .
+   37 condicionFinal: P_A COND_NOT condicion P_C .
 
-    $default  reduce usando la regla 22 (while)
+    $default  reduce usando la regla 37 (condicionFinal)
 
 
 estado 118
 
-   23 if: IF condicionFinal LL_A sentenciaV LL_C .
-   24   | IF condicionFinal LL_A sentenciaV LL_C . ELSE LL_A sentenciaF LL_C
+   32 condicionFinal: condicionFinal COND_AND condicion .
+   33               | P_A condicionFinal COND_AND condicion . P_C
 
-    ELSE  desplazar e ir al estado 129
+    P_C  desplazar e ir al estado 133
 
-    $default  reduce usando la regla 23 (if)
+    $default  reduce usando la regla 32 (condicionFinal)
 
 
 estado 119
+
+   34 condicionFinal: condicionFinal COND_OR condicion .
+   35               | P_A condicionFinal COND_OR condicion . P_C
+
+    P_C  desplazar e ir al estado 134
+
+    $default  reduce usando la regla 34 (condicionFinal)
+
+
+estado 120
+
+   22 while: WHILE condicionWhile LL_A sentenciaWhile LL_C .
+
+    $default  reduce usando la regla 22 (while)
+
+
+estado 121
+
+   23 sentenciaWhile: sentenciaWhile estructura .
+
+    $default  reduce usando la regla 23 (sentenciaWhile)
+
+
+estado 122
+
+   46 condicion: COND_NOT factor .
+
+    $default  reduce usando la regla 46 (condicion)
+
+
+estado 123
+
+   28 sentenciaIf: sentenciaIf estructura .
+
+    $default  reduce usando la regla 28 (sentenciaIf)
+
+
+estado 124
+
+   26 if: IF condicionFinal LL_A sentenciaV LL_C .
+   27   | IF condicionFinal LL_A sentenciaV LL_C . ELSE LL_A sentenciaF LL_C
+
+    ELSE  desplazar e ir al estado 135
+
+    $default  reduce usando la regla 26 (if)
+
+
+estado 125
 
     8 listaDeclaraciones: listaDeclaraciones listaID DP tipoDato .
 
     $default  reduce usando la regla 8 (listaDeclaraciones)
 
 
-estado 120
-
-   47 inlist: INLIST P_A ID PYC C_A . listaExpresiones C_C P_C
-
-    OP_REST    desplazar e ir al estado 72
-    P_A        desplazar e ir al estado 73
-    ID         desplazar e ir al estado 74
-    CTE_INT    desplazar e ir al estado 75
-    CTE_FLOAT  desplazar e ir al estado 76
-
-    listaExpresiones  ir al estado 130
-    expresion         ir al estado 131
-    termino           ir al estado 79
-    operando          ir al estado 80
-
-
-estado 121
-
-   48 take: TAKE P_A signo PYC CTE_INT . PYC C_A valores C_C P_C
-
-    PYC  desplazar e ir al estado 132
-
-
-estado 122
-
-   73 operando: P_A expresion P_C .
-
-    $default  reduce usando la regla 73 (operando)
-
-
-estado 123
-
-   62 expresion: expresion OP_MAS termino .
-   65 termino: termino . OP_DIV operando
-   66        | termino . OP_MULT operando
-
-    OP_MULT  desplazar e ir al estado 111
-    OP_DIV   desplazar e ir al estado 112
-
-    $default  reduce usando la regla 62 (expresion)
-
-
-estado 124
-
-   63 expresion: expresion OP_REST termino .
-   65 termino: termino . OP_DIV operando
-   66        | termino . OP_MULT operando
-
-    OP_MULT  desplazar e ir al estado 111
-    OP_DIV   desplazar e ir al estado 112
-
-    $default  reduce usando la regla 63 (expresion)
-
-
-estado 125
-
-   66 termino: termino OP_MULT operando .
-
-    $default  reduce usando la regla 66 (termino)
-
-
 estado 126
 
-   65 termino: termino OP_DIV operando .
+   52 inlist: INLIST P_A ID PYC C_A . listaExpresiones C_C P_C
 
-    $default  reduce usando la regla 65 (termino)
+    TAKE       desplazar e ir al estado 7
+    OP_REST    desplazar e ir al estado 73
+    P_A        desplazar e ir al estado 74
+    ID         desplazar e ir al estado 75
+    CTE_INT    desplazar e ir al estado 76
+    CTE_FLOAT  desplazar e ir al estado 77
+
+    take              ir al estado 79
+    listaExpresiones  ir al estado 136
+    expresion         ir al estado 137
+    termino           ir al estado 81
+    operando          ir al estado 82
 
 
 estado 127
 
-   28 condicionFinal: P_A condicionFinal COND_AND condicion P_C .
+   54 take: TAKE P_A signo PYC CTE_INT . $@1 PYC C_A valores C_C P_C
 
-    $default  reduce usando la regla 28 (condicionFinal)
+    $default  reduce usando la regla 53 ($@1)
+
+    $@1  ir al estado 138
 
 
 estado 128
 
-   30 condicionFinal: P_A condicionFinal COND_OR condicion P_C .
+   78 operando: P_A expresion P_C .
 
-    $default  reduce usando la regla 30 (condicionFinal)
+    $default  reduce usando la regla 78 (operando)
 
 
 estado 129
 
-   24 if: IF condicionFinal LL_A sentenciaV LL_C ELSE . LL_A sentenciaF LL_C
+   67 expresion: expresion OP_MAS termino .
+   70 termino: termino . OP_DIV operando
+   71        | termino . OP_MULT operando
 
-    LL_A  desplazar e ir al estado 133
+    OP_MULT  desplazar e ir al estado 115
+    OP_DIV   desplazar e ir al estado 116
+
+    $default  reduce usando la regla 67 (expresion)
 
 
 estado 130
 
-   47 inlist: INLIST P_A ID PYC C_A listaExpresiones . C_C P_C
-   60 listaExpresiones: listaExpresiones . PYC expresion
+   68 expresion: expresion OP_REST termino .
+   70 termino: termino . OP_DIV operando
+   71        | termino . OP_MULT operando
 
-    C_C  desplazar e ir al estado 134
-    PYC  desplazar e ir al estado 135
+    OP_MULT  desplazar e ir al estado 115
+    OP_DIV   desplazar e ir al estado 116
+
+    $default  reduce usando la regla 68 (expresion)
 
 
 estado 131
 
-   61 listaExpresiones: expresion .
-   62 expresion: expresion . OP_MAS termino
-   63          | expresion . OP_REST termino
+   71 termino: termino OP_MULT operando .
 
-    OP_MAS   desplazar e ir al estado 109
-    OP_REST  desplazar e ir al estado 110
-
-    $default  reduce usando la regla 61 (listaExpresiones)
+    $default  reduce usando la regla 71 (termino)
 
 
 estado 132
 
-   48 take: TAKE P_A signo PYC CTE_INT PYC . C_A valores C_C P_C
+   70 termino: termino OP_DIV operando .
 
-    C_A  desplazar e ir al estado 136
+    $default  reduce usando la regla 70 (termino)
 
 
 estado 133
 
-   24 if: IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A . sentenciaF LL_C
+   33 condicionFinal: P_A condicionFinal COND_AND condicion P_C .
 
-    WHILE   desplazar e ir al estado 1
-    IF      desplazar e ir al estado 2
-    WRITE   desplazar e ir al estado 3
-    READ    desplazar e ir al estado 4
-    DECVAR  desplazar e ir al estado 5
-    INLIST  desplazar e ir al estado 6
-    TAKE    desplazar e ir al estado 7
-    ID      desplazar e ir al estado 8
-
-    sentencia    ir al estado 137
-    declaracion  ir al estado 12
-    estructura   ir al estado 13
-    while        ir al estado 14
-    if           ir al estado 15
-    sentenciaF   ir al estado 138
-    asign        ir al estado 16
-    inlist       ir al estado 17
-    take         ir al estado 18
-    write        ir al estado 19
-    read         ir al estado 20
+    $default  reduce usando la regla 33 (condicionFinal)
 
 
 estado 134
 
-   47 inlist: INLIST P_A ID PYC C_A listaExpresiones C_C . P_C
+   35 condicionFinal: P_A condicionFinal COND_OR condicion P_C .
 
-    P_C  desplazar e ir al estado 139
+    $default  reduce usando la regla 35 (condicionFinal)
 
 
 estado 135
 
-   60 listaExpresiones: listaExpresiones PYC . expresion
+   27 if: IF condicionFinal LL_A sentenciaV LL_C ELSE . LL_A sentenciaF LL_C
 
-    OP_REST    desplazar e ir al estado 72
-    P_A        desplazar e ir al estado 73
-    ID         desplazar e ir al estado 74
-    CTE_INT    desplazar e ir al estado 75
-    CTE_FLOAT  desplazar e ir al estado 76
-
-    expresion  ir al estado 140
-    termino    ir al estado 79
-    operando   ir al estado 80
+    LL_A  desplazar e ir al estado 139
 
 
 estado 136
 
-   48 take: TAKE P_A signo PYC CTE_INT PYC C_A . valores C_C P_C
+   52 inlist: INLIST P_A ID PYC C_A listaExpresiones . C_C P_C
+   65 listaExpresiones: listaExpresiones . PYC expresion
 
-    OP_REST    desplazar e ir al estado 141
-    ID         desplazar e ir al estado 142
-    CTE_INT    desplazar e ir al estado 143
-    CTE_FLOAT  desplazar e ir al estado 144
-
-    valores  ir al estado 145
-    valor    ir al estado 146
+    C_C  desplazar e ir al estado 140
+    PYC  desplazar e ir al estado 141
 
 
 estado 137
 
-    3 sentencia: sentencia . declaracion
-    4          | sentencia . estructura
-   26 sentenciaF: sentencia .
+   66 listaExpresiones: expresion .
+   67 expresion: expresion . OP_MAS termino
+   68          | expresion . OP_REST termino
+
+    OP_MAS   desplazar e ir al estado 113
+    OP_REST  desplazar e ir al estado 114
+
+    $default  reduce usando la regla 66 (listaExpresiones)
+
+
+estado 138
+
+   54 take: TAKE P_A signo PYC CTE_INT $@1 . PYC C_A valores C_C P_C
+
+    PYC  desplazar e ir al estado 142
+
+
+estado 139
+
+   27 if: IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A . sentenciaF LL_C
 
     WHILE   desplazar e ir al estado 1
     IF      desplazar e ir al estado 2
     WRITE   desplazar e ir al estado 3
     READ    desplazar e ir al estado 4
-    DECVAR  desplazar e ir al estado 5
     INLIST  desplazar e ir al estado 6
     TAKE    desplazar e ir al estado 7
     ID      desplazar e ir al estado 8
 
-    $default  reduce usando la regla 26 (sentenciaF)
-
-    declaracion  ir al estado 43
-    estructura   ir al estado 44
+    estructura   ir al estado 99
     while        ir al estado 14
     if           ir al estado 15
+    sentenciaIf  ir al estado 143
+    sentenciaF   ir al estado 144
     asign        ir al estado 16
     inlist       ir al estado 17
     take         ir al estado 18
@@ -1719,127 +1723,187 @@ estado 137
     read         ir al estado 20
 
 
-estado 138
-
-   24 if: IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF . LL_C
-
-    LL_C  desplazar e ir al estado 147
-
-
-estado 139
-
-   47 inlist: INLIST P_A ID PYC C_A listaExpresiones C_C P_C .
-
-    $default  reduce usando la regla 47 (inlist)
-
-
 estado 140
 
-   60 listaExpresiones: listaExpresiones PYC expresion .
-   62 expresion: expresion . OP_MAS termino
-   63          | expresion . OP_REST termino
+   52 inlist: INLIST P_A ID PYC C_A listaExpresiones C_C . P_C
 
-    OP_MAS   desplazar e ir al estado 109
-    OP_REST  desplazar e ir al estado 110
-
-    $default  reduce usando la regla 60 (listaExpresiones)
+    P_C  desplazar e ir al estado 145
 
 
 estado 141
 
-   56 valor: OP_REST . CTE_INT
-   58      | OP_REST . CTE_FLOAT
+   65 listaExpresiones: listaExpresiones PYC . expresion
 
-    CTE_INT    desplazar e ir al estado 148
-    CTE_FLOAT  desplazar e ir al estado 149
+    TAKE       desplazar e ir al estado 7
+    OP_REST    desplazar e ir al estado 73
+    P_A        desplazar e ir al estado 74
+    ID         desplazar e ir al estado 75
+    CTE_INT    desplazar e ir al estado 76
+    CTE_FLOAT  desplazar e ir al estado 77
+
+    take       ir al estado 79
+    expresion  ir al estado 146
+    termino    ir al estado 81
+    operando   ir al estado 82
 
 
 estado 142
 
-   59 valor: ID .
+   54 take: TAKE P_A signo PYC CTE_INT $@1 PYC . C_A valores C_C P_C
 
-    $default  reduce usando la regla 59 (valor)
+    C_A  desplazar e ir al estado 147
 
 
 estado 143
 
-   55 valor: CTE_INT .
+   28 sentenciaIf: sentenciaIf . estructura
+   31 sentenciaF: sentenciaIf .
 
-    $default  reduce usando la regla 55 (valor)
+    WHILE   desplazar e ir al estado 1
+    IF      desplazar e ir al estado 2
+    WRITE   desplazar e ir al estado 3
+    READ    desplazar e ir al estado 4
+    INLIST  desplazar e ir al estado 6
+    TAKE    desplazar e ir al estado 7
+    ID      desplazar e ir al estado 8
+
+    $default  reduce usando la regla 31 (sentenciaF)
+
+    estructura  ir al estado 123
+    while       ir al estado 14
+    if          ir al estado 15
+    asign       ir al estado 16
+    inlist      ir al estado 17
+    take        ir al estado 18
+    write       ir al estado 19
+    read        ir al estado 20
 
 
 estado 144
 
-   57 valor: CTE_FLOAT .
+   27 if: IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF . LL_C
 
-    $default  reduce usando la regla 57 (valor)
+    LL_C  desplazar e ir al estado 148
 
 
 estado 145
 
-   48 take: TAKE P_A signo PYC CTE_INT PYC C_A valores . C_C P_C
-   53 valores: valores . PYC valor
+   52 inlist: INLIST P_A ID PYC C_A listaExpresiones C_C P_C .
 
-    C_C  desplazar e ir al estado 150
-    PYC  desplazar e ir al estado 151
+    $default  reduce usando la regla 52 (inlist)
 
 
 estado 146
 
-   54 valores: valor .
+   65 listaExpresiones: listaExpresiones PYC expresion .
+   67 expresion: expresion . OP_MAS termino
+   68          | expresion . OP_REST termino
 
-    $default  reduce usando la regla 54 (valores)
+    OP_MAS   desplazar e ir al estado 113
+    OP_REST  desplazar e ir al estado 114
+
+    $default  reduce usando la regla 65 (listaExpresiones)
 
 
 estado 147
 
-   24 if: IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C .
+   54 take: TAKE P_A signo PYC CTE_INT $@1 PYC C_A . valores C_C P_C
 
-    $default  reduce usando la regla 24 (if)
+    OP_REST    desplazar e ir al estado 149
+    CTE_INT    desplazar e ir al estado 150
+    CTE_FLOAT  desplazar e ir al estado 151
+
+    valores  ir al estado 152
+    valor    ir al estado 153
 
 
 estado 148
 
-   56 valor: OP_REST CTE_INT .
+   27 if: IF condicionFinal LL_A sentenciaV LL_C ELSE LL_A sentenciaF LL_C .
 
-    $default  reduce usando la regla 56 (valor)
+    $default  reduce usando la regla 27 (if)
 
 
 estado 149
 
-   58 valor: OP_REST CTE_FLOAT .
+   62 valor: OP_REST . CTE_INT
+   64      | OP_REST . CTE_FLOAT
 
-    $default  reduce usando la regla 58 (valor)
+    CTE_INT    desplazar e ir al estado 154
+    CTE_FLOAT  desplazar e ir al estado 155
 
 
 estado 150
 
-   48 take: TAKE P_A signo PYC CTE_INT PYC C_A valores C_C . P_C
+   61 valor: CTE_INT .
 
-    P_C  desplazar e ir al estado 152
+    $default  reduce usando la regla 61 (valor)
 
 
 estado 151
 
-   53 valores: valores PYC . valor
+   63 valor: CTE_FLOAT .
 
-    OP_REST    desplazar e ir al estado 141
-    ID         desplazar e ir al estado 142
-    CTE_INT    desplazar e ir al estado 143
-    CTE_FLOAT  desplazar e ir al estado 144
-
-    valor  ir al estado 153
+    $default  reduce usando la regla 63 (valor)
 
 
 estado 152
 
-   48 take: TAKE P_A signo PYC CTE_INT PYC C_A valores C_C P_C .
+   54 take: TAKE P_A signo PYC CTE_INT $@1 PYC C_A valores . C_C P_C
+   59 valores: valores . PYC valor
 
-    $default  reduce usando la regla 48 (take)
+    C_C  desplazar e ir al estado 156
+    PYC  desplazar e ir al estado 157
 
 
 estado 153
 
-   53 valores: valores PYC valor .
+   60 valores: valor .
 
-    $default  reduce usando la regla 53 (valores)
+    $default  reduce usando la regla 60 (valores)
+
+
+estado 154
+
+   62 valor: OP_REST CTE_INT .
+
+    $default  reduce usando la regla 62 (valor)
+
+
+estado 155
+
+   64 valor: OP_REST CTE_FLOAT .
+
+    $default  reduce usando la regla 64 (valor)
+
+
+estado 156
+
+   54 take: TAKE P_A signo PYC CTE_INT $@1 PYC C_A valores C_C . P_C
+
+    P_C  desplazar e ir al estado 158
+
+
+estado 157
+
+   59 valores: valores PYC . valor
+
+    OP_REST    desplazar e ir al estado 149
+    CTE_INT    desplazar e ir al estado 150
+    CTE_FLOAT  desplazar e ir al estado 151
+
+    valor  ir al estado 159
+
+
+estado 158
+
+   54 take: TAKE P_A signo PYC CTE_INT $@1 PYC C_A valores C_C P_C .
+
+    $default  reduce usando la regla 54 (take)
+
+
+estado 159
+
+   59 valores: valores PYC valor .
+
+    $default  reduce usando la regla 59 (valores)

@@ -20,6 +20,7 @@ int validarValorTabla (char* );
 void insertarIDEnTablaDeSimbolos(char* );
 void generarArchivo();
 void insertarFLOATEnTablaDeSimbolos(char* );
+void insertarEnTablaDeSimbolos(char* id, char* tipo);
 char* eliminarComillasCTESTRING(char* );
 
 int validarValorTabla (char* id){
@@ -58,13 +59,16 @@ void insertarIDEnTablaDeSimbolos(char* id)
     }
 }
 
-void insertarEnTablaDeSimbolos(char* id)
+void insertarEnTablaDeSimbolos(char* id, char* tipo)
 {  
     char nombre[100] = "_";
     strcat(nombre,id);
     if(validarValorTabla(nombre) == -1){
         strcpy(matrizDeRegistros[ultimaPosicion].valor,id);
         strcpy(matrizDeRegistros[ultimaPosicion].nombre,nombre);
+        strcpy(matrizDeRegistros[ultimaPosicion].tipo,tipo);
+        if(strcmp(tipo,"STRING") == 0)
+            matrizDeRegistros[ultimaPosicion].longitud = strlen(id);
         ultimaPosicion++;
     }
 }
@@ -81,10 +85,10 @@ void generarArchivo()
   int i;
   for(i = 0; i < ultimaPosicion ; i++)
   {
-    fprintf(fp, " %-*s | %-*s | %*s | %*s |\n", 31, matrizDeRegistros[i].nombre,
-                                                 18, "",
+    fprintf(fp, " %-*s | %-*s | %*s | %*d |\n", 31, matrizDeRegistros[i].nombre,
+                                                 18, matrizDeRegistros[i].tipo,
                                                  31, matrizDeRegistros[i].valor,
-                                                 11, "");
+                                                 11, matrizDeRegistros[i].longitud);
   }
   fclose ( fp );
 }
