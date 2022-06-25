@@ -5,15 +5,19 @@
 #include "y.tab.h"
 #include "TablaSimbolos.h"
 #include "Arbol.h"
+#include "Pila.h"
 
 extern FILE* yyin;
 
 void reiniciarPunteros();
 void operacionTake(float valor);
+void informarError(char* mensajeError);
 
 FILE* archTS;
 FILE *pArbol;
 FILE *pIntermedia;
+
+t_pila pilaIDs;
 
 t_NodoArbol* Ptr;
 t_NodoArbol* Sptr;
@@ -57,7 +61,9 @@ float nroResultadoTake;
 char* signoTake;
 char nroCadenaTake[10];
 
+
 %}
+
 
 %union{
 	char* strVal; 
@@ -138,12 +144,24 @@ sentencia:  sentencia declaracion                                               
 declaracion: DECVAR listaDeclaraciones ENDDEC                                   {DECptr = LDECptr;}
 ;
 
-listaDeclaraciones: listaDeclaraciones listaID DP tipoDato                      {AUXptr = crearNodo(":",LIDptr,TPptr);LDECptr = crearNodo("LISTADEC",AUXptr,LDECptr);}
-            |   listaID DP tipoDato                                             {LDECptr = crearNodo(":",LIDptr,TPptr);}
+listaDeclaraciones: listaDeclaraciones listaID DP tipoDato                      {AUXptr = crearNodo(":",LIDptr,TPptr);LDECptr = crearNodo("LISTADEC",AUXptr,LDECptr);
+                                                                                 char id[100];
+													                             while(!pila_vacia(&pilaIDs)) {
+													                                desapilar(&pilaIDs, id);
+													                                if(insertarIDEnTablaDeSimbolos(id,TPptr->info) == -1){
+                                                                                        informarError("Variable ya declarada");  
+                                                                                    }}}
+            |   listaID DP tipoDato                                             {LDECptr = crearNodo(":",LIDptr,TPptr);
+                                                                                 char id[100];
+													                             while(!pila_vacia(&pilaIDs)) {
+													                                desapilar(&pilaIDs, id);
+													                                if(insertarIDEnTablaDeSimbolos(id,TPptr->info) == -1){
+                                                                                        informarError("Variable ya declarada");  
+                                                                                    }}}
 ;
 
-listaID:    listaID COMA ID                                                     {LIDptr = crearNodo(",",LIDptr,crearHoja($3));}
-            |   ID                                                              {LIDptr = crearHoja($1);}
+listaID:    listaID COMA ID                                                     {LIDptr = crearNodo(",",LIDptr,crearHoja($3));apilar(&pilaIDs,$3);}
+            |   ID                                                              {LIDptr = crearHoja($1);apilar(&pilaIDs,$1);}
 ;
 
 tipoDato:   STRING                                                              {TPptr = crearHoja("STRING");}
@@ -211,11 +229,11 @@ factorDer: factor                                                               
 factorIzq: factor                                                               {FIptr = Fptr;}
 ;
 
-asign:      ID OP_ASIG expresion                                                {ASptr = crearNodo("=", crearHoja($1),Eptr);}
-            | ID OP_ASIG CTE_STRING                                             {ASptr = crearNodo("=", crearHoja($1), crearHoja($3));}
+asign:      ID OP_ASIG expresion                                                {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}if(strcmp(getTipo($1),"STRING")== 0){informarError("Asignacion invalida");}ASptr = crearNodo("=", crearHoja($1),Eptr);}
+            | ID OP_ASIG CTE_STRING                                             {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}if(strcmp(getTipo($1),"STRING")!= 0){informarError("Asignacion invalida");}ASptr = crearNodo("=", crearHoja($1), crearHoja($3));}
 ;
 
-inlist:     INLIST P_A ID PYC C_A listaExpresiones C_C P_C                      {ILptr = crearNodo("INLIST",crearHoja($3),Lptr);}
+inlist:     INLIST P_A ID PYC C_A listaExpresiones C_C P_C                      {if(validarValorTabla($3) == -1 ){informarError("Variable no declarada");}ILptr = crearNodo("INLIST",crearHoja($3),Lptr);}
 ;
 
 take:       TAKE P_A signo PYC CTE_INT {controlTake=0; nroTake = atoi($5); nroResultadoTake = 0;} PYC C_A valores C_C P_C  {if(controlTake < nroTake){
@@ -261,7 +279,7 @@ operando:   CTE_INT                                                             
             | OP_REST CTE_INT                                                   {Optr = crearHoja($2);}
             | CTE_FLOAT                                                         {Optr = crearHoja($1);}
             | OP_REST CTE_FLOAT                                                 {Optr = crearHoja($2);}
-            | ID                                                                {Optr = crearHoja($1);}
+            | ID                                                                {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}Optr = crearHoja($1);}
             | P_A expresion P_C                                                 {;}
             | take                                                              {Optr = TAKEptr;}
 ;
@@ -269,10 +287,10 @@ operando:   CTE_INT                                                             
 write:      WRITE factor                                                        {Wptr = crearNodo("W",crearHoja("WRITE"),Fptr);}
 ;
 
-read:       READ ID                                                             {Rptr = crearNodo("R",crearHoja("READ"),crearHoja($2));}
+read:       READ ID                                                             {if(validarValorTabla($2) == -1 ){informarError("Variable no declarada");}Rptr = crearNodo("R",crearHoja("READ"),crearHoja($2));}
 ;
 
-factor:     ID                                                                  {Fptr = crearHoja($1);}
+factor:     ID                                                                  {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}Fptr = crearHoja($1);}
             | CTE_INT                                                           {Fptr = crearHoja($1);}
             | OP_REST CTE_INT                                                   {Fptr = crearHoja($2);}
             | CTE_STRING                                                        {Fptr = crearHoja($1);}
@@ -295,6 +313,8 @@ int main(int argc, char* argv[])
     {
         printf("\nNo se puede abrir el archivo %s\n", argv[1]);
     }
+
+    crear_pila(&pilaIDs);
 
     yyparse();
 
@@ -378,3 +398,4 @@ void operacionTake(float valor){
                     }
                 }
 }
+

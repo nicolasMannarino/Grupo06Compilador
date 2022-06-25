@@ -114,7 +114,6 @@ DP                      ":"
                                 informarError("El ID supera el tam maximo (VALOR MAXIMO: 20)"); 
                             }
                         else {                            
-                            insertarIDEnTablaDeSimbolos(yytext);
                             yylval.strVal = strdup(yytext);
                             return ID;
                             }
@@ -128,7 +127,7 @@ DP                      ":"
                         }
                         else
                         {
-                            insertarEnTablaDeSimbolos(yytext,"FLOAT");
+                            insertarEnTablaDeSimbolos(yytext,"CTE_FLOAT");
                             yylval.strVal = strdup(yytext);
                             return CTE_FLOAT;	        
                         }
@@ -142,7 +141,7 @@ DP                      ":"
                         }
                         else
                         {
-                            insertarEnTablaDeSimbolos(yytext,"INT");
+                            insertarEnTablaDeSimbolos(yytext,"CTE_INT");
                             yylval.strVal = strdup(yytext);
                             return CTE_INT;	
                         }
@@ -157,7 +156,7 @@ DP                      ":"
                          informarError("La constante STRING supera el tam maximo (VALOR MAXIMO: 30)"); 
                         }
                     else{
-                        insertarEnTablaDeSimbolos(eliminarComillasCTESTRING(yytext),"STRING");
+                        insertarEnTablaDeSimbolos(eliminarComillasCTESTRING(yytext),"CTE_STRING");
                         yylval.strVal = strdup(yytext);
                         return CTE_STRING;
                     }

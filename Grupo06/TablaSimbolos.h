@@ -17,13 +17,14 @@ tRegistro matrizDeRegistros[TAM_MATRIZ];
 int ultimaPosicion = 0;
 
 int validarValorTabla (char* );
-void insertarIDEnTablaDeSimbolos(char* );
+int insertarIDEnTablaDeSimbolos(char* ,char*);
 void generarArchivo();
 void insertarFLOATEnTablaDeSimbolos(char* );
 void insertarEnTablaDeSimbolos(char* id, char* tipo);
 char* eliminarComillasCTESTRING(char* );
+char* getTipo(char*);
 
-int validarValorTabla (char* id){
+int validarValorTabla(char* id){
     int aux=0;
     while( ultimaPosicion > aux ){
         if(strcmp(id,matrizDeRegistros[aux].nombre) == 0){
@@ -51,11 +52,15 @@ char* eliminarComillasCTESTRING(char* str)
     return cadInicio;
 }
 
-void insertarIDEnTablaDeSimbolos(char* id)
+int insertarIDEnTablaDeSimbolos(char* id, char* tipo)
 {  
     if(validarValorTabla(id) == -1){
         strcpy(matrizDeRegistros[ultimaPosicion].nombre,id);
+        strcpy(matrizDeRegistros[ultimaPosicion].tipo,tipo);
         ultimaPosicion++;
+    }
+    else{
+        return -1;
     }
 }
 
@@ -72,6 +77,17 @@ void insertarEnTablaDeSimbolos(char* id, char* tipo)
         ultimaPosicion++;
     }
 }
+
+char* getTipo(char* id){
+    int aux=0;
+    while( ultimaPosicion > aux ){
+        if(strcmp(id,matrizDeRegistros[aux].nombre) == 0){
+            return matrizDeRegistros[aux].tipo;
+        }
+        aux++;
+    }
+};
+
 
 void generarArchivo()
 {

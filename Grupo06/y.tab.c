@@ -76,15 +76,19 @@
 #include "y.tab.h"
 #include "TablaSimbolos.h"
 #include "Arbol.h"
+#include "Pila.h"
 
 extern FILE* yyin;
 
 void reiniciarPunteros();
 void operacionTake(float valor);
+void informarError(char* mensajeError);
 
 FILE* archTS;
 FILE *pArbol;
 FILE *pIntermedia;
+
+t_pila pilaIDs;
 
 t_NodoArbol* Ptr;
 t_NodoArbol* Sptr;
@@ -130,8 +134,9 @@ char nroCadenaTake[10];
 
 
 
+
 /* Line 189 of yacc.c  */
-#line 135 "y.tab.c"
+#line 140 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -260,14 +265,14 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 62 "Sintactico.y"
+#line 68 "Sintactico.y"
 
 	char* strVal; 
 
 
 
 /* Line 214 of yacc.c  */
-#line 271 "y.tab.c"
+#line 276 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -279,7 +284,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 283 "y.tab.c"
+#line 288 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -600,15 +605,15 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   126,   126,   129,   132,   133,   134,   135,   138,   141,
-     142,   145,   146,   149,   150,   151,   154,   155,   156,   157,
-     158,   159,   160,   163,   166,   167,   169,   172,   173,   176,
-     177,   180,   183,   186,   187,   189,   190,   192,   193,   194,
-     195,   198,   199,   200,   201,   202,   203,   204,   205,   208,
-     211,   214,   215,   218,   221,   221,   230,   231,   232,   233,
-     236,   237,   240,   241,   242,   243,   246,   247,   250,   251,
-     252,   255,   256,   257,   260,   261,   262,   263,   264,   265,
-     266,   269,   272,   275,   276,   277,   278,   279,   280
+       0,   132,   132,   135,   138,   139,   140,   141,   144,   147,
+     154,   163,   164,   167,   168,   169,   172,   173,   174,   175,
+     176,   177,   178,   181,   184,   185,   187,   190,   191,   194,
+     195,   198,   201,   204,   205,   207,   208,   210,   211,   212,
+     213,   216,   217,   218,   219,   220,   221,   222,   223,   226,
+     229,   232,   233,   236,   239,   239,   248,   249,   250,   251,
+     254,   255,   258,   259,   260,   261,   264,   265,   268,   269,
+     270,   273,   274,   275,   278,   279,   280,   281,   282,   283,
+     284,   287,   290,   293,   294,   295,   296,   297,   298
 };
 #endif
 
@@ -1625,378 +1630,390 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 126 "Sintactico.y"
+#line 132 "Sintactico.y"
     {mostrarArbolDeIzqADer(&Ptr,pArbol);InOrden(&Ptr, pIntermedia);}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 129 "Sintactico.y"
+#line 135 "Sintactico.y"
     {Ptr = SENptr; printf(" FIN\n");}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 132 "Sintactico.y"
+#line 138 "Sintactico.y"
     {SENptr = crearNodo("S",SENptr,DECptr);}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 133 "Sintactico.y"
+#line 139 "Sintactico.y"
     {SENptr = crearNodo("S",SENptr,ESTptr);}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 134 "Sintactico.y"
+#line 140 "Sintactico.y"
     {SENptr = ESTptr;}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 135 "Sintactico.y"
+#line 141 "Sintactico.y"
     {SENptr = DECptr;}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 138 "Sintactico.y"
+#line 144 "Sintactico.y"
     {DECptr = LDECptr;}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 141 "Sintactico.y"
-    {AUXptr = crearNodo(":",LIDptr,TPptr);LDECptr = crearNodo("LISTADEC",AUXptr,LDECptr);}
+#line 147 "Sintactico.y"
+    {AUXptr = crearNodo(":",LIDptr,TPptr);LDECptr = crearNodo("LISTADEC",AUXptr,LDECptr);
+                                                                                 char id[100];
+													                             while(!pila_vacia(&pilaIDs)) {
+													                                desapilar(&pilaIDs, id);
+													                                if(insertarIDEnTablaDeSimbolos(id,TPptr->info) == -1){
+                                                                                        informarError("Variable ya declarada");  
+                                                                                    }}}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 142 "Sintactico.y"
-    {LDECptr = crearNodo(":",LIDptr,TPptr);}
+#line 154 "Sintactico.y"
+    {LDECptr = crearNodo(":",LIDptr,TPptr);
+                                                                                 char id[100];
+													                             while(!pila_vacia(&pilaIDs)) {
+													                                desapilar(&pilaIDs, id);
+													                                if(insertarIDEnTablaDeSimbolos(id,TPptr->info) == -1){
+                                                                                        informarError("Variable ya declarada");  
+                                                                                    }}}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 145 "Sintactico.y"
-    {LIDptr = crearNodo(",",LIDptr,crearHoja((yyvsp[(3) - (3)].strVal)));}
+#line 163 "Sintactico.y"
+    {LIDptr = crearNodo(",",LIDptr,crearHoja((yyvsp[(3) - (3)].strVal)));apilar(&pilaIDs,(yyvsp[(3) - (3)].strVal));}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 146 "Sintactico.y"
-    {LIDptr = crearHoja((yyvsp[(1) - (1)].strVal));}
+#line 164 "Sintactico.y"
+    {LIDptr = crearHoja((yyvsp[(1) - (1)].strVal));apilar(&pilaIDs,(yyvsp[(1) - (1)].strVal));}
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 149 "Sintactico.y"
+#line 167 "Sintactico.y"
     {TPptr = crearHoja("STRING");}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 150 "Sintactico.y"
+#line 168 "Sintactico.y"
     {TPptr = crearHoja("INT");}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 151 "Sintactico.y"
+#line 169 "Sintactico.y"
     {TPptr = crearHoja("FLOAT");}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 154 "Sintactico.y"
+#line 172 "Sintactico.y"
     {ESTptr = WHptr;}
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 155 "Sintactico.y"
+#line 173 "Sintactico.y"
     {ESTptr = IFptr;}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 156 "Sintactico.y"
+#line 174 "Sintactico.y"
     {ESTptr = ASptr;}
     break;
 
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 157 "Sintactico.y"
+#line 175 "Sintactico.y"
     {ESTptr = Wptr;}
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 158 "Sintactico.y"
+#line 176 "Sintactico.y"
     {ESTptr = Tptr;}
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 159 "Sintactico.y"
+#line 177 "Sintactico.y"
     {ESTptr = Rptr;}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 160 "Sintactico.y"
+#line 178 "Sintactico.y"
     {ESTptr = ILptr;}
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 163 "Sintactico.y"
+#line 181 "Sintactico.y"
     {WHptr = crearNodo("WHILE", CONDWptr, SENWHILEptr);}
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 166 "Sintactico.y"
+#line 184 "Sintactico.y"
     {SENWHILEptr = crearNodo("S",SENWHILEptr,ESTptr);}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 167 "Sintactico.y"
+#line 185 "Sintactico.y"
     {SENWHILEptr = ESTptr;}
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 169 "Sintactico.y"
+#line 187 "Sintactico.y"
     {CONDWptr = CONDFptr;}
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 172 "Sintactico.y"
+#line 190 "Sintactico.y"
     {IFptr = crearNodo("IF", CONDFptr, SVptr);}
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 173 "Sintactico.y"
+#line 191 "Sintactico.y"
     {IFptr = crearNodo("IF", CONDFptr, crearNodo("CUERPO",SVptr,SFptr));}
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 176 "Sintactico.y"
+#line 194 "Sintactico.y"
     {SENIFptr = crearNodo("S",SENIFptr,ESTptr);}
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 177 "Sintactico.y"
+#line 195 "Sintactico.y"
     {SENIFptr = ESTptr;}
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 180 "Sintactico.y"
+#line 198 "Sintactico.y"
     {SVptr = SENIFptr;}
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 183 "Sintactico.y"
+#line 201 "Sintactico.y"
     {SFptr = SENIFptr;}
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 186 "Sintactico.y"
+#line 204 "Sintactico.y"
     {CONDFptr = crearNodo("AND",CONDFptr,CONDptr);}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 187 "Sintactico.y"
+#line 205 "Sintactico.y"
     {CONDFptr = crearNodo("AND",CONDFptr,CONDptr);}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 189 "Sintactico.y"
+#line 207 "Sintactico.y"
     {CONDFptr = crearNodo("OR",CONDFptr,CONDptr);}
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 190 "Sintactico.y"
+#line 208 "Sintactico.y"
     {CONDFptr = crearNodo("OR",CONDFptr,CONDptr);}
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 192 "Sintactico.y"
+#line 210 "Sintactico.y"
     {;}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 193 "Sintactico.y"
+#line 211 "Sintactico.y"
     {CONDFptr = CONDptr;}
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 194 "Sintactico.y"
+#line 212 "Sintactico.y"
     {CONDFptr = CONDptr;}
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 195 "Sintactico.y"
+#line 213 "Sintactico.y"
     {CONDFptr = CONDptr;}
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 198 "Sintactico.y"
+#line 216 "Sintactico.y"
     {CONDptr = crearNodo("<",  FIptr, FDptr);}
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 199 "Sintactico.y"
+#line 217 "Sintactico.y"
     {CONDptr = crearNodo(">",  FIptr, FDptr);}
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 200 "Sintactico.y"
+#line 218 "Sintactico.y"
     {CONDptr = crearNodo("<=", FIptr, FDptr);}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 201 "Sintactico.y"
+#line 219 "Sintactico.y"
     {CONDptr = crearNodo(">=", FIptr, FDptr);}
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 202 "Sintactico.y"
+#line 220 "Sintactico.y"
     {CONDptr = crearNodo("==", FIptr, FDptr);}
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 203 "Sintactico.y"
+#line 221 "Sintactico.y"
     {CONDptr = crearNodo("!=", FIptr, FDptr);}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 204 "Sintactico.y"
+#line 222 "Sintactico.y"
     {CONDptr = Fptr;}
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 205 "Sintactico.y"
+#line 223 "Sintactico.y"
     {CONDptr = ILptr;}
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 208 "Sintactico.y"
+#line 226 "Sintactico.y"
     {FDptr = Fptr;}
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 211 "Sintactico.y"
+#line 229 "Sintactico.y"
     {FIptr = Fptr;}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 214 "Sintactico.y"
-    {ASptr = crearNodo("=", crearHoja((yyvsp[(1) - (3)].strVal)),Eptr);}
+#line 232 "Sintactico.y"
+    {if(validarValorTabla((yyvsp[(1) - (3)].strVal)) == -1 ){informarError("Variable no declarada");}if(strcmp(getTipo((yyvsp[(1) - (3)].strVal)),"STRING")== 0){informarError("Asignacion invalida");}ASptr = crearNodo("=", crearHoja((yyvsp[(1) - (3)].strVal)),Eptr);}
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 215 "Sintactico.y"
-    {ASptr = crearNodo("=", crearHoja((yyvsp[(1) - (3)].strVal)), crearHoja((yyvsp[(3) - (3)].strVal)));}
+#line 233 "Sintactico.y"
+    {if(validarValorTabla((yyvsp[(1) - (3)].strVal)) == -1 ){informarError("Variable no declarada");}if(strcmp(getTipo((yyvsp[(1) - (3)].strVal)),"STRING")!= 0){informarError("Asignacion invalida");}ASptr = crearNodo("=", crearHoja((yyvsp[(1) - (3)].strVal)), crearHoja((yyvsp[(3) - (3)].strVal)));}
     break;
 
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 218 "Sintactico.y"
-    {ILptr = crearNodo("INLIST",crearHoja((yyvsp[(3) - (8)].strVal)),Lptr);}
+#line 236 "Sintactico.y"
+    {if(validarValorTabla((yyvsp[(3) - (8)].strVal)) == -1 ){informarError("Variable no declarada");}ILptr = crearNodo("INLIST",crearHoja((yyvsp[(3) - (8)].strVal)),Lptr);}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 221 "Sintactico.y"
+#line 239 "Sintactico.y"
     {controlTake=0; nroTake = atoi((yyvsp[(5) - (5)].strVal)); nroResultadoTake = 0;}
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 221 "Sintactico.y"
+#line 239 "Sintactico.y"
     {if(controlTake < nroTake){
                                                                                                                                 yyerror();
                                                                                                                             }
@@ -2009,238 +2026,238 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 230 "Sintactico.y"
+#line 248 "Sintactico.y"
     {signoTake = "+";}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 231 "Sintactico.y"
+#line 249 "Sintactico.y"
     {signoTake = "-";}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 232 "Sintactico.y"
+#line 250 "Sintactico.y"
     {signoTake = "*";}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 233 "Sintactico.y"
+#line 251 "Sintactico.y"
     {signoTake = "/";}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 236 "Sintactico.y"
+#line 254 "Sintactico.y"
     {;}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 237 "Sintactico.y"
+#line 255 "Sintactico.y"
     {;}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 240 "Sintactico.y"
+#line 258 "Sintactico.y"
     {if(controlTake < nroTake){operacionTake(atof((yyvsp[(1) - (1)].strVal)));controlTake++;};}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 241 "Sintactico.y"
+#line 259 "Sintactico.y"
     {if(controlTake < nroTake){operacionTake(atof((yyvsp[(2) - (2)].strVal)));controlTake++;};}
     break;
 
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 242 "Sintactico.y"
+#line 260 "Sintactico.y"
     {if(controlTake < nroTake){operacionTake(atof((yyvsp[(1) - (1)].strVal)));controlTake++;};}
     break;
 
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 243 "Sintactico.y"
+#line 261 "Sintactico.y"
     {if(controlTake < nroTake){operacionTake(atof((yyvsp[(2) - (2)].strVal)));controlTake++;};}
     break;
 
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 246 "Sintactico.y"
+#line 264 "Sintactico.y"
     {Lptr = crearNodo(";",Lptr,Eptr);}
     break;
 
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 247 "Sintactico.y"
+#line 265 "Sintactico.y"
     {Lptr = Eptr;}
     break;
 
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 250 "Sintactico.y"
+#line 268 "Sintactico.y"
     {Eptr = crearNodo("+",Eptr,Tptr);}
     break;
 
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 251 "Sintactico.y"
+#line 269 "Sintactico.y"
     {Eptr = crearNodo("-",Eptr,Tptr);}
     break;
 
   case 70:
 
 /* Line 1455 of yacc.c  */
-#line 252 "Sintactico.y"
+#line 270 "Sintactico.y"
     {Eptr = Tptr;}
     break;
 
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 255 "Sintactico.y"
+#line 273 "Sintactico.y"
     {Tptr = crearNodo("/",Tptr,Optr);}
     break;
 
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 256 "Sintactico.y"
+#line 274 "Sintactico.y"
     {Tptr = crearNodo("*",Tptr,Optr);}
     break;
 
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 257 "Sintactico.y"
+#line 275 "Sintactico.y"
     {Tptr = Optr;}
     break;
 
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 260 "Sintactico.y"
+#line 278 "Sintactico.y"
     {Optr = crearHoja((yyvsp[(1) - (1)].strVal));}
     break;
 
   case 75:
 
 /* Line 1455 of yacc.c  */
-#line 261 "Sintactico.y"
+#line 279 "Sintactico.y"
     {Optr = crearHoja((yyvsp[(2) - (2)].strVal));}
     break;
 
   case 76:
 
 /* Line 1455 of yacc.c  */
-#line 262 "Sintactico.y"
+#line 280 "Sintactico.y"
     {Optr = crearHoja((yyvsp[(1) - (1)].strVal));}
     break;
 
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 263 "Sintactico.y"
+#line 281 "Sintactico.y"
     {Optr = crearHoja((yyvsp[(2) - (2)].strVal));}
     break;
 
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 264 "Sintactico.y"
-    {Optr = crearHoja((yyvsp[(1) - (1)].strVal));}
+#line 282 "Sintactico.y"
+    {if(validarValorTabla((yyvsp[(1) - (1)].strVal)) == -1 ){informarError("Variable no declarada");}Optr = crearHoja((yyvsp[(1) - (1)].strVal));}
     break;
 
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 265 "Sintactico.y"
+#line 283 "Sintactico.y"
     {;}
     break;
 
   case 80:
 
 /* Line 1455 of yacc.c  */
-#line 266 "Sintactico.y"
+#line 284 "Sintactico.y"
     {Optr = TAKEptr;}
     break;
 
   case 81:
 
 /* Line 1455 of yacc.c  */
-#line 269 "Sintactico.y"
+#line 287 "Sintactico.y"
     {Wptr = crearNodo("W",crearHoja("WRITE"),Fptr);}
     break;
 
   case 82:
 
 /* Line 1455 of yacc.c  */
-#line 272 "Sintactico.y"
-    {Rptr = crearNodo("R",crearHoja("READ"),crearHoja((yyvsp[(2) - (2)].strVal)));}
+#line 290 "Sintactico.y"
+    {if(validarValorTabla((yyvsp[(2) - (2)].strVal)) == -1 ){informarError("Variable no declarada");}Rptr = crearNodo("R",crearHoja("READ"),crearHoja((yyvsp[(2) - (2)].strVal)));}
     break;
 
   case 83:
 
 /* Line 1455 of yacc.c  */
-#line 275 "Sintactico.y"
-    {Fptr = crearHoja((yyvsp[(1) - (1)].strVal));}
+#line 293 "Sintactico.y"
+    {if(validarValorTabla((yyvsp[(1) - (1)].strVal)) == -1 ){informarError("Variable no declarada");}Fptr = crearHoja((yyvsp[(1) - (1)].strVal));}
     break;
 
   case 84:
 
 /* Line 1455 of yacc.c  */
-#line 276 "Sintactico.y"
+#line 294 "Sintactico.y"
     {Fptr = crearHoja((yyvsp[(1) - (1)].strVal));}
     break;
 
   case 85:
 
 /* Line 1455 of yacc.c  */
-#line 277 "Sintactico.y"
+#line 295 "Sintactico.y"
     {Fptr = crearHoja((yyvsp[(2) - (2)].strVal));}
     break;
 
   case 86:
 
 /* Line 1455 of yacc.c  */
-#line 278 "Sintactico.y"
+#line 296 "Sintactico.y"
     {Fptr = crearHoja((yyvsp[(1) - (1)].strVal));}
     break;
 
   case 87:
 
 /* Line 1455 of yacc.c  */
-#line 279 "Sintactico.y"
+#line 297 "Sintactico.y"
     {Fptr = crearHoja((yyvsp[(1) - (1)].strVal));}
     break;
 
   case 88:
 
 /* Line 1455 of yacc.c  */
-#line 280 "Sintactico.y"
+#line 298 "Sintactico.y"
     {Fptr = crearHoja((yyvsp[(2) - (2)].strVal));}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2244 "y.tab.c"
+#line 2261 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2452,7 +2469,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 283 "Sintactico.y"
+#line 301 "Sintactico.y"
 
 
 
@@ -2468,6 +2485,8 @@ int main(int argc, char* argv[])
     {
         printf("\nNo se puede abrir el archivo %s\n", argv[1]);
     }
+
+    crear_pila(&pilaIDs);
 
     yyparse();
 
@@ -2551,3 +2570,5 @@ void operacionTake(float valor){
                     }
                 }
 }
+
+
