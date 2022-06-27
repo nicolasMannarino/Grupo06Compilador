@@ -37,17 +37,21 @@ S
 			=
 				var111
 		S
-								var3
+								1111
 							=
-								var111
+								var11
 						S
-								var3
-							=
-								var111
+									var4
+								=
+									var3
+							S
+									var11
+								=
+									var111
 					IF
-								var3
+								var1
 							!=
-								var3
+								var111
 						OR
 								var3
 							!=
@@ -55,9 +59,9 @@ S
 				WHILE
 						var3
 					<=
-						var3
+						var4
 			S
-									var3
+									var1
 								=
 									var111
 							S
@@ -81,7 +85,7 @@ S
 							!=
 								var1
 						OR
-								15
+								var11
 							<
 								var1
 				S
@@ -123,4 +127,6 @@ S
 										LISTADEC
 												STRING
 											:
-												var3
+													var4
+												,
+													var3

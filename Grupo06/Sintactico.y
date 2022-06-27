@@ -18,6 +18,8 @@ FILE *pArbol;
 FILE *pIntermedia;
 
 t_pila pilaIDs;
+t_pila pilaAsign;
+t_pila pilaCond;
 
 t_NodoArbol* Ptr;
 t_NodoArbol* Sptr;
@@ -224,14 +226,29 @@ condicion:  factorIzq COMP_MEN factorDer                                        
 ;
 
 factorDer: factor                                                               {FDptr = Fptr;}
+            | ID                                                                {if(validarValorTabla($1) == -1 ){
+                                                                                    informarError("Variable no declarada");}
+                                                                                FDptr = crearHoja($1);
+                                                                                char id[100];
+                                                                                if(!pila_vacia(&pilaCond)){
+                                                                                    desapilar(&pilaCond,id);
+                                                                                    if(strcmp(getTipo(id),getTipo(FDptr->info))!= 0){
+                                                                                        informarError("Comparacion invalida");
+                                                                                }}}
 ;
 
 factorIzq: factor                                                               {FIptr = Fptr;}
+            | ID                                                                {if(validarValorTabla($1) == -1 ){
+                                                                                    informarError("Variable no declarada");}
+                                                                                FIptr = crearHoja($1);
+                                                                                apilar(&pilaCond,FIptr->info);}
 ;
 
-asign:      ID OP_ASIG expresion                                                {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}if(strcmp(getTipo($1),"STRING")== 0){informarError("Asignacion invalida");}ASptr = crearNodo("=", crearHoja($1),Eptr);}
+asign:      ID OP_ASIG {apilar(&pilaAsign,$1);} expresion                       {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}ASptr = crearNodo("=", crearHoja($1),Eptr);char id[100];desapilar(&pilaAsign,id);}
             | ID OP_ASIG CTE_STRING                                             {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}if(strcmp(getTipo($1),"STRING")!= 0){informarError("Asignacion invalida");}ASptr = crearNodo("=", crearHoja($1), crearHoja($3));}
 ;
+
+
 
 inlist:     INLIST P_A ID PYC C_A listaExpresiones C_C P_C                      {if(validarValorTabla($3) == -1 ){informarError("Variable no declarada");}ILptr = crearNodo("INLIST",crearHoja($3),Lptr);}
 ;
@@ -275,23 +292,64 @@ termino:    termino OP_DIV operando                                             
             | operando                                                          {Tptr = Optr;}
 ;
 
-operando:   CTE_INT                                                             {Optr = crearHoja($1);}
-            | OP_REST CTE_INT                                                   {Optr = crearHoja($2);}
-            | CTE_FLOAT                                                         {Optr = crearHoja($1);}
-            | OP_REST CTE_FLOAT                                                 {Optr = crearHoja($2);}
-            | ID                                                                {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}Optr = crearHoja($1);}
+operando:   CTE_INT                                                             {char id[100];
+                                                                                if(!pila_vacia(&pilaAsign)){
+                                                                                    desapilar(&pilaAsign,id);
+                                                                                    if(strcmp(getTipo(id),"STRING")== 0){
+                                                                                        informarError("Asignacion invalida");
+                                                                                    }
+                                                                                    apilar(&pilaAsign,id);
+                                                                                }
+                                                                                Optr = crearHoja($1);}
+            | OP_REST CTE_INT                                                   {char id[100];
+                                                                                if(!pila_vacia(&pilaAsign)){
+                                                                                    desapilar(&pilaAsign,id);
+                                                                                    if(strcmp(getTipo(id),"STRING")== 0){
+                                                                                        informarError("Asignacion invalida");
+                                                                                    }
+                                                                                    apilar(&pilaAsign,id);
+                                                                                }
+                                                                                Optr = crearHoja($2);}
+            | CTE_FLOAT                                                         {char id[100];
+                                                                                if(!pila_vacia(&pilaAsign)){
+                                                                                    desapilar(&pilaAsign,id);
+                                                                                    if(strcmp(getTipo(id),"STRING")== 0){
+                                                                                        informarError("Asignacion invalida");
+                                                                                    }
+                                                                                    apilar(&pilaAsign,id);
+                                                                                }
+                                                                                Optr = crearHoja($1);}
+            | OP_REST CTE_FLOAT                                                 {char id[100];
+                                                                                if(!pila_vacia(&pilaAsign)){
+                                                                                    desapilar(&pilaAsign,id);
+                                                                                    if(strcmp(getTipo(id),"STRING")== 0){
+                                                                                        informarError("Asignacion invalida");
+                                                                                    }
+                                                                                    apilar(&pilaAsign,id);
+                                                                                }
+                                                                                Optr = crearHoja($2);}
+            | ID                                                                {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}
+                                                                                 char id[100];
+                                                                                 if(!pila_vacia(&pilaAsign)){
+                                                                                    desapilar(&pilaAsign,id);
+                                                                                    if(strcmp(getTipo(id),getTipo($1)) != 0){
+                                                                                        informarError("Asignacion invalida");
+                                                                                    }
+                                                                                    apilar(&pilaAsign,id);
+                                                                                }
+                                                                                Optr = crearHoja($1);}
             | P_A expresion P_C                                                 {;}
             | take                                                              {Optr = TAKEptr;}
 ;
 
 write:      WRITE factor                                                        {Wptr = crearNodo("W",crearHoja("WRITE"),Fptr);}
+            | WRITE ID                                                          {Wptr = crearNodo("W",crearHoja("WRITE"),crearHoja($2));}
 ;
 
 read:       READ ID                                                             {if(validarValorTabla($2) == -1 ){informarError("Variable no declarada");}Rptr = crearNodo("R",crearHoja("READ"),crearHoja($2));}
 ;
 
-factor:     ID                                                                  {if(validarValorTabla($1) == -1 ){informarError("Variable no declarada");}Fptr = crearHoja($1);}
-            | CTE_INT                                                           {Fptr = crearHoja($1);}
+factor:     CTE_INT                                                           {Fptr = crearHoja($1);}
             | OP_REST CTE_INT                                                   {Fptr = crearHoja($2);}
             | CTE_STRING                                                        {Fptr = crearHoja($1);}
             | CTE_FLOAT                                                         {Fptr = crearHoja($1);}
