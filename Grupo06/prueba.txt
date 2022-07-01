@@ -5,12 +5,12 @@ DECVAR
 ENDDEC   
 
 var1:=1
-var1:=3+1/5
+var1:=103+1+5
 READ var3
 WRITE "HolaMundo"
 WRITE var1
 
-IF(var1 < var11 || var1 != var1 )
+IF(var1 < var11 )
 	{
 		-/error en c@ota de int/-
 		-/a1 := 84000/-
@@ -37,7 +37,7 @@ WHILE(var4 <= var3){
 var111 := TAKE(+;3;[2;2;2])
 
 -/Probando INLIST/-
-WHILE(INLIST (var111; [2*var111+7 ; 12 ; var111+var111*34*var111 ; 48]))
+WHILE(INLIST (var111; [2-var111 ; 12 ; 3*var111 ; 48]))
 {
 	var111:= 1
 }

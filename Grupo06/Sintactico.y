@@ -6,20 +6,30 @@
 #include "TablaSimbolos.h"
 #include "Arbol.h"
 #include "Pila.h"
+#include "Lista.h"
 
 extern FILE* yyin;
 
 void reiniciarPunteros();
 void operacionTake(float valor);
 void informarError(char* mensajeError);
+void generarAssembler(t_arbol* pArbol);
 
 FILE* archTS;
 FILE *pArbol;
 FILE *pIntermedia;
+FILE *pAssembler;
+FILE *ass;
+FILE *pCode;
+FILE *auxAss;
+
 
 t_pila pilaIDs;
 t_pila pilaAsign;
 t_pila pilaCond;
+
+tLista listaAux;
+tLista listaSimbolos;
 
 t_NodoArbol* Ptr;
 t_NodoArbol* Sptr;
@@ -131,7 +141,7 @@ char nroCadenaTake[10];
 
 
 
-programaFinal:   programa                                                       {mostrarArbolDeIzqADer(&Ptr,pArbol);InOrden(&Ptr, pIntermedia);}
+programaFinal:   programa                                                       {mostrarArbolDeIzqADer(&Ptr,pArbol);InOrden(&Ptr, pIntermedia);crearAssembler(&Ptr, auxAss);}
 ;
 
 programa:   sentencia                                                           {Ptr = SENptr; printf(" FIN\n");}
@@ -361,6 +371,10 @@ factor:     CTE_INT                                                           {F
 
 int main(int argc, char* argv[])
 {
+
+    char Linea[300];
+    ass = fopen("Assembler.asm", "wt");
+    auxAss = fopen("AuxAssembler.asm", "wt");
     archTS = fopen("ts.txt","w");
     if((pIntermedia = fopen("Intermedia.txt", "wt")) == NULL)
 	{
@@ -372,18 +386,54 @@ int main(int argc, char* argv[])
         printf("\nNo se puede abrir el archivo %s\n", argv[1]);
     }
 
+    fprintf(ass,"include macros2.asm\ninclude number.asm\n\n");
+    fprintf(ass,".MODEL LARGE	; Modelo de Memoria\n");
+    fprintf(ass,".386	        ; Tipo de Procesador\n");
+    fprintf(ass,".STACK 200h		; Bytes en el Stack\n");
+    fprintf(ass,"\n.DATA \n\n");
+
+    
+
     crear_pila(&pilaIDs);
+    crear_pila(&pilaAsign);
+    crearLista(&listaAux);
+    crearLista(&listaSimbolos);
+    crear_pila(&pilaCond);
 
     yyparse();
 
+    pasarTablaAasembler(ass);
     generarArchivo();
     printf("\nCOMPILACION EXITOSA!\n");
     reiniciarPunteros();
+
+    fclose(auxAss);
+    auxAss = fopen("AuxAssembler.asm", "rt");
+    fseek(ass,0,SEEK_END);
+
+    fprintf(ass,"\n.CODE\n\n");
+
+    fprintf(ass,".mov AX,@DATA");
+    fprintf(ass,"\nmov DS,AX");
+    fprintf(ass,"\nmov es,ax ;\n\n");
+
+
+
+    while(fgets(Linea, sizeof(Linea), auxAss))
+	{
+		fprintf(ass, Linea);
+	}
+
+    fprintf(ass,"\nmov ax,4c00h\nint 21h\n\nEnd");
+
     fclose(pIntermedia);
     fclose(yyin);
+    fclose(ass);
+    fclose(auxAss);
     
     return 0;
 }
+
 
 void reiniciarPunteros(){
 Ptr = NULL;

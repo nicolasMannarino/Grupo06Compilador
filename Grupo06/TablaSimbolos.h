@@ -23,6 +23,7 @@ void insertarFLOATEnTablaDeSimbolos(char* );
 void insertarEnTablaDeSimbolos(char* id, char* tipo);
 char* eliminarComillasCTESTRING(char* );
 char* getTipo(char*);
+void pasarTablaAasembler(FILE* ass);
 
 int validarValorTabla(char* id){
     int aux=0;
@@ -107,4 +108,17 @@ void generarArchivo()
                                                  11, matrizDeRegistros[i].longitud);
   }
   fclose ( fp );
+}
+
+void pasarTablaAasembler(FILE* ass){
+     
+  int i;
+  fseek(ass,157,SEEK_SET);
+  for(i = 0; i < ultimaPosicion ; i++)
+  {
+    
+    fprintf(ass, "%-*s  %-*s  %*s \n", 31, matrizDeRegistros[i].nombre,
+                                                 18, "dd",
+                                                 31, matrizDeRegistros[i].valor);
+  }
 }

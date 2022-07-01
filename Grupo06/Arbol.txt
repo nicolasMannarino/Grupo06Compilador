@@ -15,21 +15,15 @@ S
 		WHILE
 					48
 				;
-								var111
-							*
-									34
-								*
-									var111
-						+
 							var111
+						*
+							3
 					;
 							12
 						;
-								7
-							+
-									var111
-								*
-									2
+								var111
+							-
+								2
 			INLIST
 				var111
 	S
@@ -81,13 +75,9 @@ S
 								=
 									var1
 					IF
-								var1
-							!=
-								var1
-						OR
-								var11
-							<
-								var1
+							var11
+						<
+							var1
 				S
 							var1
 						W
@@ -101,11 +91,11 @@ S
 								R
 									READ
 							S
-												5
-											/
-												1
+											5
 										+
-											3
+												1
+											+
+												103
 									=
 										var1
 								S
