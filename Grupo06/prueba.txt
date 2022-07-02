@@ -10,7 +10,7 @@ READ var3
 WRITE "HolaMundo"
 WRITE var1
 
-IF(var1 < var11 )
+IF(var1 < var11 || var4 <= var3)
 	{
 		-/error en c@ota de int/-
 		-/a1 := 84000/-
@@ -25,34 +25,14 @@ ELSE
 		var111:= var1
 	}
 WHILE(var4 <= var3){
-	IF(var3 != var3 || var111 != var1)
-	{
 		var111:= var11
 		var3:= var4
 		var11:= 1111
-	}
 }
 
--/Probando TAKE/-
 var111 := TAKE(+;3;[2;2;2])
-
--/Probando INLIST/-
-WHILE(INLIST (var111; [2-var111 ; 12 ; 3*var111 ; 48]))
-{
-	var111:= 1
-}
-WHILE(INLIST (var111; [2.3 ; 1.22]))
-{
-	var111:= var111
-}
-
-
-
-
-
 
 -/Comentario/-
 
 -/Comentario 
 multilinea/-
-

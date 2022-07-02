@@ -25,7 +25,14 @@ void mostrarArbolDeIzqADer(t_arbol *pa, FILE* pArbol);
 void mostrarArbolDeIzqADerAux(t_arbol *pa,int nivel, FILE* pArbol);
 void crearAssembler(t_arbol *pa, FILE *ass);
 void traducirAssembler(t_arbol *pa, FILE *ass);
-void recorrerIF(t_arbol* pa, FILE* ass);
+void traducirOp(t_arbol* pa,FILE *ass, char* op);
+void traducirIf(t_arbol* pa,FILE* ass);
+void traducirCondicion(t_arbol* pa, FILE* ass);
+void traducirCondicionOR(t_arbol* pa, FILE* ass);
+void traducirIfElse(t_arbol* pa,FILE* ass);
+void traducirWhile(t_arbol* pa,FILE* ass);
+void traducirCondicionWhile(t_arbol* pa, FILE* ass);
+void traducirCondicionORWhile(t_arbol* pa, FILE* ass);
 
 int contAux=0;
 char str_Aux[20];
@@ -142,7 +149,6 @@ void traduccionCuerpoIf(t_arbol* pArbol,FILE* pAssembler, char* salto){
      else  if(contCuerp==2){
          sprintf(str_FinIf, "fin_if%d", contFinIf);
          fprintf(pAssembler,"%s\n", str_FinIf);
-         contFinIf++;
          free((*pArbol)->izq);
          free((*pArbol)->der);
 
@@ -151,43 +157,6 @@ void traduccionCuerpoIf(t_arbol* pArbol,FILE* pAssembler, char* salto){
      }
 
   
-}
-
-void traduccionIf(t_arbol* pArbol,FILE* pAssembler, char* salto){
-     if(!*pArbol)
-        return;
-    if(contCuerp==0){
-    fprintf(pAssembler,"%s\n",salto);
-    fprintf(pAssembler,"FFREE\n"); 
-    
-    }
-    contCuerp=0;
-    free((*pArbol)->izq);
-    free((*pArbol)->der);
-
-    (*pArbol)->izq = NULL;
-    (*pArbol)->der = NULL;
-}
-
-void traduccionCond(t_arbol* pArbol,FILE* pAssembler, char* salto){
-     if(!*pArbol)
-        return;
-    printf("Entra a condicion... \n");
-    fprintf(pAssembler,"FLD %s\n",((*pArbol)->izq)->info);
-    fprintf(pAssembler,"FCOMP %s\n",((*pArbol)->der)->info);
-    fprintf(pAssembler,"FSTSW ax\n");
-    fprintf(pAssembler,"SAHF\n");
-    sprintf(str_Salto, "saltoelse%d", contSalto);
-    fprintf(pAssembler,"%s %s\n", salto, str_Salto);
-
-     free((*pArbol)->izq);
-     free((*pArbol)->der);
-
-    (*pArbol)->izq = NULL;
-    (*pArbol)->der = NULL;
-    
-    
-
 }
 
 int esHoja(t_arbol* pNodoArbol){
@@ -203,22 +172,23 @@ int esHoja(t_arbol* pNodoArbol){
 
 void crearAssembler(t_arbol *pa, FILE *ass)
 {
-    
     if(!(*pa))
         return;
-    crearAssembler(&(*pa)->izq, ass);
-    if(empezar == 0 && strcmp(((*pa)->info),"S") == 0){
+    if((*pa) && (*pa)->izq != NULL){
+        crearAssembler(&(*pa)->izq, ass);
+    }
+    if((*pa) && empezar == 0 && strcmp(((*pa)->info),"S") == 0){
         empezar=1;
     }
-    if(empezar==1){
+    if((*pa) && empezar==1 && esHoja(pa) == 0){
         traducirAssembler(pa,ass); 
     }
-    crearAssembler(&(*pa)->der, ass);
+    if((*pa) && (*pa)->der != NULL){
+        crearAssembler(&(*pa)->der, ass);
+    }
 }
 
 void traducirAssembler(t_arbol *pa, FILE *ass){
-
-
     if(strcmp((*pa)->info,"=")==0){
         if((*pa)->der->izq != NULL){
             crearAssembler(&(*pa)->der,ass);
@@ -232,139 +202,220 @@ void traducirAssembler(t_arbol *pa, FILE *ass){
         (*pa)->izq = NULL;
         (*pa)->der = NULL;
     }else
-
     if(strcmp((*pa)->info,"+")==0){
-
-        if((*pa)->izq->izq != NULL){
-            crearAssembler(&(*pa)->izq,ass);
-        }else{
-            if(strcmp((*pa)->izq->info,"+")!=0){
-                fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
-            }
-        }
-
-        if((*pa)->der->izq != NULL){ //no es hoja?
-            crearAssembler(&(*pa)->der,ass);
-        }else{
-            fprintf(ass,"FLD %s\n",((*pa)->der)->info);
-        }
-
-        fprintf(ass,"FADD \n");
-        
-        free((*pa)->izq);
-        free((*pa)->der);
-        (*pa)->izq = NULL;
-        (*pa)->der = NULL;
+        traducirOp(pa,ass,"FADD");
     }else
-
     if(strcmp((*pa)->info,"/")==0){
-
-        if((*pa)->izq->izq != NULL){
-            crearAssembler(&(*pa)->izq,ass);
-        }else{
-            if(strcmp((*pa)->izq->info,"/")!=0){
-                fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
-            }
-        }
-
-        if((*pa)->der->izq != NULL){ //no es hoja?
-            crearAssembler(&(*pa)->der,ass);
-        }else{
-            fprintf(ass,"FLD %s\n",((*pa)->der)->info);
-        }
-
-        fprintf(ass,"FDIV \n");
-        free((*pa)->izq);
-        free((*pa)->der);
-
-        (*pa)->izq = NULL;
-        (*pa)->der = NULL;
+        traducirOp(pa,ass,"FDIV");
     }else
-
     if(strcmp((*pa)->info,"*")==0){
-        
-        if((*pa)->izq->izq != NULL){
-            crearAssembler(&(*pa)->izq,ass);
-        }else{
-            if(strcmp((*pa)->izq->info,"*")!=0){
-                fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
-            }
-        }
-
-        if((*pa)->der->izq != NULL){ //no es hoja?
-            crearAssembler(&(*pa)->der,ass);
-        }else{
-            if(strcmp((*pa)->der->info,"*")!=0){
-                fprintf(ass,"FLD %s \n",((*pa)->der)->info);
-            }
-        }
-
-        fprintf(ass,"FMUL \n");
-        
-        free((*pa)->izq);
-        free((*pa)->der);
-
-        (*pa)->izq = NULL;
-        (*pa)->der = NULL;
+        traducirOp(pa,ass,"FMUL");
     }else
-
     if(strcmp((*pa)->info,"-")==0){
-
-        if((*pa)->izq->izq != NULL){
-            crearAssembler(&(*pa)->izq,ass);
-        }else{
-            if(strcmp((*pa)->izq->info,"-")!=0){
-                fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
-            }
-        }
-
-        if((*pa)->der->izq != NULL){ //no es hoja?
-            crearAssembler(&(*pa)->der,ass);
-        }else{
-            if(strcmp((*pa)->der->info,"-")!=0){
-                fprintf(ass,"FLD %s \n",((*pa)->der)->info);
-            }
-        }
-        
-        fprintf(ass,"FSUB \n");
-
-        free((*pa)->izq);
-        free((*pa)->der);
-
-        (*pa)->izq = NULL;
-        (*pa)->der = NULL;
+        traducirOp(pa,ass,"FSUB");
     }else
-
     if(strcmp((*pa)->info,"W")==0){
         fprintf(ass,"WRITE %s \n",((*pa)->der)->info);
+        (*pa)->izq = NULL;
+        (*pa)->der = NULL;
     }else
-
     if(strcmp((*pa)->info,"R")==0){
         fprintf(ass,"READ %s \n",((*pa)->der)->info);
-    }
-
+        (*pa)->izq = NULL;
+        (*pa)->der = NULL;
+    }else
     if(strcmp((*pa)->info,"IF")==0){
-        if(strcmp((*pa)->izq->info,"AND")==0 || strcmp((*pa)->izq->info,"OR")==0){
-            
-        }else {
-            fprintf(ass,"FLD %s \n",((*pa)->izq)->izq->info);
-            fprintf(ass,"FCOMP %s \n",((*pa)->izq)->der->info);
-            fprintf(ass,"FSTSW ax \n");
-            fprintf(ass,"FSHF \n");
-            if(strcmp((*pa)->izq->info,"<")==0){
-                fprintf(ass,"JAE finIf\n");
-            }
+        if(strcmp((*pa)->der->info,"CUERPO")==0){
+            traducirIfElse(pa,ass);
+        }else{
+            traducirIf(pa,ass);
         }
+    }else
+    if(strcmp((*pa)->info,"WHILE")==0){
+        traducirWhile(pa,ass);
+    }
+}
 
-        recorrerIF(&(*pa)->der,ass);
+void traducirOp(t_arbol* pa,FILE *ass, char* op){
+
+    if(esHoja(&(*pa)->izq)==1 && strcmp((*pa)->izq->info,"+")!=0 && strcmp((*pa)->izq->info,"-")!=0 && strcmp((*pa)->izq->info,"/")!=0 && strcmp((*pa)->izq->info,"*")!=0){
+        fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+    }
+    if(esHoja(&(*pa)->der)==1){
+    fprintf(ass,"FLD %s\n",((*pa)->der)->info);
+    }else{
+        crearAssembler(&(*pa)->der,ass);
+        free((*pa)->izq);
+        free((*pa)->der);
+        (*pa)->izq = NULL;
+        (*pa)->der = NULL;        
+    }
+    if(esHoja(&(*pa)->izq)==0 && esHoja(&(*pa)->der)==0){
         
     }
+    fprintf(ass,"%s \n",op);
 
 }
 
-void recorrerIF(t_arbol* pa, FILE* ass){
+void traducirIf(t_arbol* pa,FILE* ass){
 
+    if(strcmp((*pa)->izq->info,"AND")==0){
+        traducirCondicion(&(*pa)->izq->izq,ass);
+        traducirCondicion(&(*pa)->izq->der,ass);
+    }else if(strcmp((*pa)->izq->info,"OR")==0){
+        traducirCondicionOR(&(*pa)->izq->izq,ass);
+        traducirCondicionOR(&(*pa)->izq->der,ass);
+        fprintf(ass,"JMP finIf%d\n",contFinIf);
+        fprintf(ass,"parteVerdadera%d\n",contFinIf);        
+    }if(strcmp((*pa)->izq->info,"INLIST")==0){
+
+        fprintf(ass,"INLIST\n");
+     
+    }
+    else{
+        traducirCondicion(&(*pa)->izq,ass);
+    }
+    crearAssembler(&(*pa)->der,ass);
+    fprintf(ass,"finIf%d\n",contFinIf);
+    contFinIf++;
 }
 
+void traducirIfElse(t_arbol* pa,FILE* ass){
+    if(strcmp((*pa)->izq->info,"AND")==0){
+        traducirCondicion(&(*pa)->izq->izq,ass);
+        traducirCondicion(&(*pa)->izq->der,ass);
+    }else if(strcmp((*pa)->izq->info,"OR")==0){
+        traducirCondicionOR(&(*pa)->izq->izq,ass);
+        traducirCondicionOR(&(*pa)->izq->der,ass);
+        fprintf(ass,"JMP finIf%d\n",contFinIf);
+        fprintf(ass,"parteVerdadera%d\n",contFinIf);        
+    }else{
+        traducirCondicion(&(*pa)->izq,ass);
+    }
+    crearAssembler(&(*pa)->der->izq,ass);
+    fprintf(ass,"JMP finElse%d\n",contFinIf);
+    fprintf(ass,"finIf%d\n",contFinIf);
+    crearAssembler(&(*pa)->der->der,ass);
+    fprintf(ass,"finElse%d\n",contFinIf);
+    contFinIf++;
+}
 
+void traducirCondicion(t_arbol* pa, FILE* ass){
+    fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+    fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    fprintf(ass,"FSTSW ax \n");
+    fprintf(ass,"FSHF \n");
+    if(strcmp((*pa)->info,"<")==0){
+        fprintf(ass,"JAE finIf%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,">")==0){
+        fprintf(ass,"JNA finIf%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,"<=")==0){
+        fprintf(ass,"JA finIf%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,">=")==0){
+        fprintf(ass,"JB finIf%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,"==")==0){
+        fprintf(ass,"JNE finIf%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,"!=")==0){
+        fprintf(ass,"JE finIf%d\n",contFinIf);
+    }
+}
+
+void traducirCondicionOR(t_arbol* pa, FILE* ass){
+    fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+    fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    fprintf(ass,"FSTSW ax \n");
+    fprintf(ass,"FSHF \n");
+    if(strcmp((*pa)->info,"<")==0){
+        fprintf(ass,"JB parteVerdadera%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,">")==0){
+        fprintf(ass,"JA parteVerdadera%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,"<=")==0){
+        fprintf(ass,"JNA parteVerdadera%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,">=")==0){
+        fprintf(ass,"JAE parteVerdadera%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,"==")==0){
+        fprintf(ass,"JE parteVerdadera%d\n",contFinIf);
+    }
+    if(strcmp((*pa)->info,"!=")==0){
+        fprintf(ass,"JNE parteVerdadera%d\n",contFinIf);
+    }
+}
+
+void traducirWhile(t_arbol* pa,FILE* ass){
+    fprintf(ass,"inicioWhile%d\n",contWhile);
+    if(strcmp((*pa)->izq->info,"AND")==0){
+        traducirCondicionWhile(&(*pa)->izq->izq,ass);
+        traducirCondicionWhile(&(*pa)->izq->der,ass);
+    }else if(strcmp((*pa)->izq->info,"OR")==0){
+        traducirCondicionORWhile(&(*pa)->izq->izq,ass);
+        traducirCondicionORWhile(&(*pa)->izq->der,ass);
+        fprintf(ass,"JMP finWhile%d\n",contWhile);
+        fprintf(ass,"parteVerdadera%d\n",contWhile);        
+    }else{
+        traducirCondicionWhile(&(*pa)->izq,ass);
+    }
+    crearAssembler(&(*pa)->der,ass);
+    fprintf(ass,"JMP inicioWhile%d\n",contWhile);
+    fprintf(ass,"finWhile%d\n",contWhile);
+    contWhile++;
+}
+
+void traducirCondicionWhile(t_arbol* pa, FILE* ass){
+    fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+    fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    fprintf(ass,"FSTSW ax \n");
+    fprintf(ass,"FSHF \n");
+    if(strcmp((*pa)->info,"<")==0){
+        fprintf(ass,"JAE finWhile%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,">")==0){
+        fprintf(ass,"JNA finWhile%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,"<=")==0){
+        fprintf(ass,"JA finWhile%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,">=")==0){
+        fprintf(ass,"JB finWhile%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,"==")==0){
+        fprintf(ass,"JNE finWhile%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,"!=")==0){
+        fprintf(ass,"JE finWhile%d\n",contWhile);
+    }
+}
+
+void traducirCondicionORWhile(t_arbol* pa, FILE* ass){
+    fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+    fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    fprintf(ass,"FSTSW ax \n");
+    fprintf(ass,"FSHF \n");
+    if(strcmp((*pa)->info,"<")==0){
+        fprintf(ass,"JB parteVerdadera%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,">")==0){
+        fprintf(ass,"JA parteVerdadera%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,"<=")==0){
+        fprintf(ass,"JNA parteVerdadera%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,">=")==0){
+        fprintf(ass,"JAE parteVerdadera%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,"==")==0){
+        fprintf(ass,"JE parteVerdadera%d\n",contWhile);
+    }
+    if(strcmp((*pa)->info,"!=")==0){
+        fprintf(ass,"JNE parteVerdadera%d\n",contWhile);
+    }
+}
 #endif // ARBOL_H_INCLUDED

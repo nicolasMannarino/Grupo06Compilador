@@ -21,10 +21,6 @@ _9999999999999999999999999.99    dd                     999999999999999999999999
 _1111                            dd                                             1111 
 _3                               dd                                                3 
 _2                               dd                                                2 
-_12                              dd                                               12 
-_48                              dd                                               48 
-_2.3                             dd                                              2.3 
-_1.22                            dd                                             1.22 
 
 .CODE
 
@@ -47,32 +43,40 @@ FLD var1
 FCOMP var11 
 FSTSW ax 
 FSHF 
-JAE finIf
+JB parteVerdadera1
+FLD var4 
+FCOMP var3 
+FSTSW ax 
+FSHF 
+JNA parteVerdadera1
+JMP finIf1
+parteVerdadera1
 FLD 16
 FSTP var1
 READ var3 
+JMP finElse1
+finIf1
 WRITE var1 
 FLD 9999999999999999999999999.99
 FSTP var111
 FLD var1
 FSTP var111
+finElse1
+inicioWhile0
+FLD var4 
+FCOMP var3 
+FSTSW ax 
+FSHF 
+JA finWhile0
 FLD var11
 FSTP var111
 FLD var4
 FSTP var3
 FLD 1111
 FSTP var11
+JMP inicioWhile0
+finWhile0
 FLD 6.000000
-FSTP var111
-FLD 2 
-FLD var111 
-FSUB 
-FLD 3 
-FLD var111 
-FMUL 
-FLD 1
-FSTP var111
-FLD var111
 FSTP var111
 
 mov ax,4c00h
