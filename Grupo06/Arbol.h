@@ -5,7 +5,6 @@
 #include <string.h>
 #include "Lista.h"
 
-
 typedef struct s_NodoArbol
 {
     struct s_NodoArbol *izq;
@@ -119,12 +118,15 @@ void traduccionWhile(t_arbol* pArbol,FILE* pAssembler, char* salto){
      if(!*pArbol)
         return;
      if(contWhile==1){
+        insertarEnTablaDeSimbolos("principiowhile","CTE_STRING");
          fprintf(pAssembler,"%s\n","principiowhile");
          printf("Entro contCuerp2");
          return;
      }
      else  if(contWhile==2){
-         fprintf(pAssembler,"JMP principiowhile\n");
+        insertarEnTablaDeSimbolos("principiowhile","CTE_STRING");
+         fprintf(pAssembler,"JMP _principiowhile\n");
+         insertarEnTablaDeSimbolos("saltoelse","CTE_STRING");
          fprintf(pAssembler,"saltoelse\n");
          free((*pArbol)->izq);
          free((*pArbol)->der);
@@ -141,12 +143,14 @@ void traduccionCuerpoIf(t_arbol* pArbol,FILE* pAssembler, char* salto){
         return;
      if(contCuerp==1){
          char salto2[5]="JMP";
+         insertarEnTablaDeSimbolos("fin_if","CTE_STRING");
          sprintf(str_FinIf, "fin_if%d", contFinIf);
          fprintf(pAssembler,"%s %s\n",salto2, str_FinIf);
          fprintf(pAssembler,"%s\n",salto);
          return;
      }
      else  if(contCuerp==2){
+         insertarEnTablaDeSimbolos("fin_if","CTE_STRING");
          sprintf(str_FinIf, "fin_if%d", contFinIf);
          fprintf(pAssembler,"%s\n", str_FinIf);
          free((*pArbol)->izq);
@@ -189,13 +193,23 @@ void crearAssembler(t_arbol *pa, FILE *ass)
 }
 
 void traducirAssembler(t_arbol *pa, FILE *ass){
+    char nombre[1000] = "_";
     if(strcmp((*pa)->info,"=")==0){
         if((*pa)->der->izq != NULL){
             crearAssembler(&(*pa)->der,ass);
         }else{
-            fprintf(ass,"FLD %s\n",((*pa)->der)->info);
+            if(strcmp(getTipo(((*pa)->der)->info),"INT") == 0 || strcmp(getTipo(((*pa)->der)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->der)->info),"STRING") == 0){
+                fprintf(ass,"FLD %s\n",((*pa)->der)->info);
+            }else{
+                strcat(nombre,((*pa)->der)->info);
+                replace_char(nombre,'.','_');
+                fprintf(ass,"FLD %s\n",nombre);
+                strcpy(nombre,"_");
+            }
         }
-        fprintf(ass,"FSTP %s\n",((*pa)->izq)->info);
+
+            fprintf(ass,"FSTP %s\n",((*pa)->izq)->info);
+
         free((*pa)->izq);
         free((*pa)->der);
 
@@ -215,12 +229,21 @@ void traducirAssembler(t_arbol *pa, FILE *ass){
         traducirOp(pa,ass,"FSUB");
     }else
     if(strcmp((*pa)->info,"W")==0){
-        fprintf(ass,"WRITE %s \n",((*pa)->der)->info);
+        if(strcmp(getTipo(((*pa)->der)->info),"INT") == 0 || strcmp(getTipo(((*pa)->der)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->der)->info),"STRING") == 0){
+            fprintf(ass,"displayString %s \n",((*pa)->der)->info);
+        }else{
+            fprintf(ass,"displayString _%s \n",((*pa)->der)->info);
+        }
+        
         (*pa)->izq = NULL;
         (*pa)->der = NULL;
     }else
     if(strcmp((*pa)->info,"R")==0){
-        fprintf(ass,"READ %s \n",((*pa)->der)->info);
+        if(strcmp(getTipo(((*pa)->der)->info),"INT") == 0 || strcmp(getTipo(((*pa)->der)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->der)->info),"STRING") == 0){
+        fprintf(ass,"displayString %s \n",((*pa)->der)->info);
+        }else{
+            fprintf(ass,"displayString %s \n",((*pa)->der)->info);
+        }
         (*pa)->izq = NULL;
         (*pa)->der = NULL;
     }else
@@ -236,13 +259,38 @@ void traducirAssembler(t_arbol *pa, FILE *ass){
     }
 }
 
-void traducirOp(t_arbol* pa,FILE *ass, char* op){
 
+void traducirOp(t_arbol* pa,FILE *ass, char* op){
+    char nombre[100] = "_";
     if(esHoja(&(*pa)->izq)==1 && strcmp((*pa)->izq->info,"+")!=0 && strcmp((*pa)->izq->info,"-")!=0 && strcmp((*pa)->izq->info,"/")!=0 && strcmp((*pa)->izq->info,"*")!=0){
-        fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+            if(strcmp(getTipo(((*pa)->izq)->info),"INT") == 0 || strcmp(getTipo(((*pa)->izq)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->izq)->info),"STRING") == 0){
+                fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+            }else{
+                strcat(nombre,((*pa)->izq)->info);
+                replace_char(nombre,'.','_');
+                fprintf(ass,"FLD %s\n",nombre);
+                strcpy(nombre,"_");
+
+                /*strcat(nombre,((*pa)->izq)->info);
+                fprintf(ass,"FLD %s \n",nombre);
+                strcpy(nombre,"_");*/
+            }
+    
+    
     }
     if(esHoja(&(*pa)->der)==1){
-    fprintf(ass,"FLD %s\n",((*pa)->der)->info);
+            if(strcmp(getTipo(((*pa)->der)->info),"INT") == 0 || strcmp(getTipo(((*pa)->der)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->der)->info),"STRING") == 0){
+                fprintf(ass,"FLD %s\n",((*pa)->der)->info);
+            }else{
+                strcat(nombre,((*pa)->der)->info);
+                replace_char(nombre,'.','_');
+                fprintf(ass,"FLD %s\n",nombre);
+                strcpy(nombre,"_");
+                /*strcat(nombre,((*pa)->der)->info);
+                fprintf(ass,"FLD %s\n",nombre);
+                strcpy(nombre,"_");*/
+            }
+        
     }else{
         crearAssembler(&(*pa)->der,ass);
         free((*pa)->izq);
@@ -258,15 +306,20 @@ void traducirOp(t_arbol* pa,FILE *ass, char* op){
 }
 
 void traducirIf(t_arbol* pa,FILE* ass){
-
+    char valor[2];
+    char destino_verdadera[50] = "parteVerdadera";
+    char destino_finIf[50] = "finIf";
     if(strcmp((*pa)->izq->info,"AND")==0){
         traducirCondicion(&(*pa)->izq->izq,ass);
         traducirCondicion(&(*pa)->izq->der,ass);
     }else if(strcmp((*pa)->izq->info,"OR")==0){
         traducirCondicionOR(&(*pa)->izq->izq,ass);
         traducirCondicionOR(&(*pa)->izq->der,ass);
-        fprintf(ass,"JMP finIf%d\n",contFinIf);
-        fprintf(ass,"parteVerdadera%d\n",contFinIf);        
+        itoa(contFinIf,valor,10);
+        //insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+        fprintf(ass,"JMP _finIf%d\n",contFinIf);
+       // insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        fprintf(ass,"_parteVerdadera%d:\n",contFinIf);        
     }if(strcmp((*pa)->izq->info,"INLIST")==0){
 
         fprintf(ass,"INLIST\n");
@@ -276,146 +329,288 @@ void traducirIf(t_arbol* pa,FILE* ass){
         traducirCondicion(&(*pa)->izq,ass);
     }
     crearAssembler(&(*pa)->der,ass);
-    fprintf(ass,"finIf%d\n",contFinIf);
+    fprintf(ass,"_finIf%d\n",contFinIf);
     contFinIf++;
 }
 
 void traducirIfElse(t_arbol* pa,FILE* ass){
+    char valor[2];
+    char destino_verdadera[50] = "parteVerdadera";
+    char destino_finIf[50] = "finIf";
+    char destino_finElse[50] = "finElse";
     if(strcmp((*pa)->izq->info,"AND")==0){
         traducirCondicion(&(*pa)->izq->izq,ass);
         traducirCondicion(&(*pa)->izq->der,ass);
     }else if(strcmp((*pa)->izq->info,"OR")==0){
         traducirCondicionOR(&(*pa)->izq->izq,ass);
         traducirCondicionOR(&(*pa)->izq->der,ass);
-        fprintf(ass,"JMP finIf%d\n",contFinIf);
-        fprintf(ass,"parteVerdadera%d\n",contFinIf);        
+        itoa(contFinIf,valor,10);
+       // insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+        //strcpy(destino_finIf,"finIf");
+        fprintf(ass,"JMP _finIf%d\n",contFinIf);
+       // insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+       // strcpy(destino_verdadera,"parteVerdadera");
+        fprintf(ass,"_parteVerdadera%d:\n",contFinIf);        
     }else{
         traducirCondicion(&(*pa)->izq,ass);
     }
     crearAssembler(&(*pa)->der->izq,ass);
-    fprintf(ass,"JMP finElse%d\n",contFinIf);
-    fprintf(ass,"finIf%d\n",contFinIf);
+    itoa(contFinIf,valor,10);
+    //insertarEnTablaDeSimbolos(strcat(destino_finElse,valor),"CTE_STRING");
+   // strcpy(destino_finElse,"finElse");
+    fprintf(ass,"JMP _finElse%d\n",contFinIf);
+
+    //insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+    //strcpy(destino_finIf,"finIf");
+    fprintf(ass,"_finIf%d:\n",contFinIf);
     crearAssembler(&(*pa)->der->der,ass);
-    fprintf(ass,"finElse%d\n",contFinIf);
+
+    //insertarEnTablaDeSimbolos(strcat(destino_finElse,valor),"CTE_STRING");
+    //strcpy(destino_finElse,"finElse");
+    fprintf(ass,"_finElse%d:\n",contFinIf);
     contFinIf++;
 }
 
 void traducirCondicion(t_arbol* pa, FILE* ass){
-    fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
-    fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    char valor[2];
+    char destino_finIf[50] = "finIf";
+    char nombre[100] = "_";
+    
+    if(strcmp(getTipo(((*pa)->izq)->info),"INT") == 0 || strcmp(getTipo(((*pa)->izq)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->izq)->info),"STRING") == 0){
+        fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+    }else{
+                        strcat(nombre,((*pa)->izq)->info);
+                replace_char(nombre,'.','_');
+                fprintf(ass,"FLD %s\n",nombre);
+                strcpy(nombre,"_");
+       /* strcat(nombre,((*pa)->izq)->info);
+        fprintf(ass,"FLD %s \n",nombre);
+        strcpy(nombre,"_");*/
+    }
+
+    
+    if(strcmp(getTipo(((*pa)->der)->info),"INT") == 0 || strcmp(getTipo(((*pa)->der)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->der)->info),"STRING") == 0){
+        fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    }else{
+        strcat(nombre,((*pa)->der)->info);
+        fprintf(ass,"FCOMP %s \n",nombre);
+        strcpy(nombre,"_");
+    }
+    
+    
     fprintf(ass,"FSTSW ax \n");
-    fprintf(ass,"FSHF \n");
+    fprintf(ass,"SAHF \n");
+
+    itoa(contFinIf,valor,10);
     if(strcmp((*pa)->info,"<")==0){
-        fprintf(ass,"JAE finIf%d\n",contFinIf);
+       // insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+       // strcpy(destino_finIf,"finIf");
+        fprintf(ass,"JAE _finIf%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,">")==0){
-        fprintf(ass,"JNA finIf%d\n",contFinIf);
+       // insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+        //strcpy(destino_finIf,"finIf");
+        fprintf(ass,"JNA _finIf%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,"<=")==0){
-        fprintf(ass,"JA finIf%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+        //strcpy(destino_finIf,"finIf");
+        fprintf(ass,"JA _finIf%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,">=")==0){
-        fprintf(ass,"JB finIf%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+        //strcpy(destino_finIf,"finIf");
+        fprintf(ass,"JB _finIf%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,"==")==0){
-        fprintf(ass,"JNE finIf%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+        //strcpy(destino_finIf,"finIf");
+        fprintf(ass,"JNE _finIf%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,"!=")==0){
-        fprintf(ass,"JE finIf%d\n",contFinIf);
+                //insertarEnTablaDeSimbolos(strcat(destino_finIf,valor),"CTE_STRING");
+        //strcpy(destino_finIf,"finIf");
+        fprintf(ass,"JE _finIf%d\n",contFinIf);
     }
 }
 
 void traducirCondicionOR(t_arbol* pa, FILE* ass){
-    fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
-    fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    char valor[2];
+    char destino_verdadera[50] = "parteVerdadera";
+    char nombre[100] = "_";
+
+    if(strcmp(getTipo(((*pa)->izq)->info),"INT") == 0 || strcmp(getTipo(((*pa)->izq)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->izq)->info),"STRING") == 0){
+            fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
+    }else{
+                        strcat(nombre,((*pa)->izq)->info);
+                replace_char(nombre,'.','_');
+                fprintf(ass,"FLD %s\n",nombre);
+                strcpy(nombre,"_");
+            /*strcat(nombre,((*pa)->izq)->info);
+            fprintf(ass,"FLD %s \n",nombre);
+            strcpy(nombre,"_");*/
+    }
+
+    
+    if(strcmp(getTipo(((*pa)->der)->info),"INT") == 0 || strcmp(getTipo(((*pa)->der)->info),"FLOAT") == 0|| strcmp(getTipo(((*pa)->der)->info),"STRING") == 0){
+                fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
+    }else{
+            strcat(nombre,((*pa)->der)->info);
+                fprintf(ass,"FCOMP %s \n",nombre);
+            strcpy(nombre,"_");
+    }
+
     fprintf(ass,"FSTSW ax \n");
-    fprintf(ass,"FSHF \n");
+    fprintf(ass,"SAHF \n");
+    itoa(contFinIf,valor,10);
     if(strcmp((*pa)->info,"<")==0){
-        fprintf(ass,"JB parteVerdadera%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");
+        fprintf(ass,"JB _parteVerdadera%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,">")==0){
-        fprintf(ass,"JA parteVerdadera%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");        
+        fprintf(ass,"JA _parteVerdadera%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,"<=")==0){
-        fprintf(ass,"JNA parteVerdadera%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");        
+        fprintf(ass,"JNA _parteVerdadera%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,">=")==0){
-        fprintf(ass,"JAE parteVerdadera%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");        
+        fprintf(ass,"JAE _parteVerdadera%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,"==")==0){
-        fprintf(ass,"JE parteVerdadera%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");        
+        fprintf(ass,"JE _parteVerdadera%d\n",contFinIf);
     }
     if(strcmp((*pa)->info,"!=")==0){
-        fprintf(ass,"JNE parteVerdadera%d\n",contFinIf);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");        
+        fprintf(ass,"JNE _parteVerdadera%d\n",contFinIf);
     }
 }
 
 void traducirWhile(t_arbol* pa,FILE* ass){
-    fprintf(ass,"inicioWhile%d\n",contWhile);
+    char valor[2];
+    char destino_inicioWhile[50] = "inicioWhile";
+    char destino_verdadera[50] = "parteVerdadera";
+    char destino_finWhile[50] = "finWhile";
+    itoa(contWhile,valor,10);
+
+    //insertarEnTablaDeSimbolos(strcat(destino_inicioWhile,valor),"CTE_STRING");
+    //strcpy(destino_inicioWhile,"inicioWhile");           
+    fprintf(ass,"_inicioWhile%d:\n",contWhile);
     if(strcmp((*pa)->izq->info,"AND")==0){
         traducirCondicionWhile(&(*pa)->izq->izq,ass);
         traducirCondicionWhile(&(*pa)->izq->der,ass);
     }else if(strcmp((*pa)->izq->info,"OR")==0){
         traducirCondicionORWhile(&(*pa)->izq->izq,ass);
         traducirCondicionORWhile(&(*pa)->izq->der,ass);
-        fprintf(ass,"JMP finWhile%d\n",contWhile);
-        fprintf(ass,"parteVerdadera%d\n",contWhile);        
+        //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+        //strcpy(destino_finWhile,"finWhile");   
+        fprintf(ass,"JMP _finWhile%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");           
+        fprintf(ass,"_parteVerdadera%d:\n",contWhile);        
     }else{
         traducirCondicionWhile(&(*pa)->izq,ass);
     }
     crearAssembler(&(*pa)->der,ass);
-    fprintf(ass,"JMP inicioWhile%d\n",contWhile);
-    fprintf(ass,"finWhile%d\n",contWhile);
+    //insertarEnTablaDeSimbolos(strcat(destino_inicioWhile,valor),"CTE_STRING");
+    //strcpy(destino_inicioWhile,"inicioWhile");      
+    fprintf(ass,"JMP _inicioWhile%d\n",contWhile);
+    //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+    //strcpy(destino_finWhile,"finWhile");     
+    fprintf(ass,"_finWhile%d:\n",contWhile);
     contWhile++;
 }
 
 void traducirCondicionWhile(t_arbol* pa, FILE* ass){
+    char valor[2];
+    char destino_inicioWhile[50] = "inicioWhile";
+    char destino_verdadera[50] = "parteVerdadera";
+    char destino_finWhile[50] = "finWhile";
+    itoa(contWhile,valor,10);
     fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
     fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
     fprintf(ass,"FSTSW ax \n");
-    fprintf(ass,"FSHF \n");
+    fprintf(ass,"SAHF \n");
     if(strcmp((*pa)->info,"<")==0){
-        fprintf(ass,"JAE finWhile%d\n",contWhile);
+    //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+    //strcpy(destino_finWhile,"finWhile");           
+        fprintf(ass,"JAE _finWhile%d\n",contWhile);
     }
     if(strcmp((*pa)->info,">")==0){
-        fprintf(ass,"JNA finWhile%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+    //strcpy(destino_finWhile,"finWhile");       
+        fprintf(ass,"JNA _finWhile%d\n",contWhile);
     }
     if(strcmp((*pa)->info,"<=")==0){
-        fprintf(ass,"JA finWhile%d\n",contWhile);
+    //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+    //strcpy(destino_finWhile,"finWhile");           
+        fprintf(ass,"JA _finWhile%d\n",contWhile);
     }
     if(strcmp((*pa)->info,">=")==0){
-        fprintf(ass,"JB finWhile%d\n",contWhile);
+    //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+    //strcpy(destino_finWhile,"finWhile");           
+        fprintf(ass,"JB _finWhile%d\n",contWhile);
     }
     if(strcmp((*pa)->info,"==")==0){
-        fprintf(ass,"JNE finWhile%d\n",contWhile);
+    //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+    //strcpy(destino_finWhile,"finWhile");           
+        fprintf(ass,"JNE _finWhile%d\n",contWhile);
     }
     if(strcmp((*pa)->info,"!=")==0){
-        fprintf(ass,"JE finWhile%d\n",contWhile);
+    //insertarEnTablaDeSimbolos(strcat(destino_finWhile,valor),"CTE_STRING");
+    //strcpy(destino_finWhile,"finWhile");           
+        fprintf(ass,"JE _finWhile%d\n",contWhile);
     }
 }
 
 void traducirCondicionORWhile(t_arbol* pa, FILE* ass){
+    char valor[2];
+    char destino_inicioWhile[50] = "inicioWhile";
+    char destino_verdadera[50] = "parteVerdadera";
+    char destino_finWhile[50] = "finWhile";    
+    itoa(contWhile,valor,10);
     fprintf(ass,"FLD %s \n",((*pa)->izq)->info);
     fprintf(ass,"FCOMP %s \n",((*pa)->der)->info);
     fprintf(ass,"FSTSW ax \n");
-    fprintf(ass,"FSHF \n");
+    fprintf(ass,"SAHF \n");
     if(strcmp((*pa)->info,"<")==0){
-        fprintf(ass,"JB parteVerdadera%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");          
+        fprintf(ass,"JB _parteVerdadera%d\n",contWhile);
     }
     if(strcmp((*pa)->info,">")==0){
-        fprintf(ass,"JA parteVerdadera%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");          
+        fprintf(ass,"JA _parteVerdadera%d\n",contWhile);
     }
     if(strcmp((*pa)->info,"<=")==0){
-        fprintf(ass,"JNA parteVerdadera%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");          
+        fprintf(ass,"JNA _parteVerdadera%d\n",contWhile);
     }
     if(strcmp((*pa)->info,">=")==0){
-        fprintf(ass,"JAE parteVerdadera%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");          
+        fprintf(ass,"JAE _parteVerdadera%d\n",contWhile);
     }
     if(strcmp((*pa)->info,"==")==0){
-        fprintf(ass,"JE parteVerdadera%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");          
+        fprintf(ass,"JE _parteVerdadera%d\n",contWhile);
     }
     if(strcmp((*pa)->info,"!=")==0){
-        fprintf(ass,"JNE parteVerdadera%d\n",contWhile);
+        //insertarEnTablaDeSimbolos(strcat(destino_verdadera,valor),"CTE_STRING");
+        //strcpy(destino_verdadera,"parteVerdadera");          
+        fprintf(ass,"JNE _parteVerdadera%d\n",contWhile);
     }
 }
 #endif // ARBOL_H_INCLUDED

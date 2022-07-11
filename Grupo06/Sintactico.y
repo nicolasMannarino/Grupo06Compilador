@@ -73,7 +73,6 @@ float nroResultadoTake;
 char* signoTake;
 char nroCadenaTake[10];
 
-
 %}
 
 
@@ -373,7 +372,7 @@ int main(int argc, char* argv[])
 {
 
     char Linea[300];
-    ass = fopen("Assembler.asm", "wt");
+    ass = fopen("Final.asm", "wt");
     auxAss = fopen("AuxAssembler.asm", "wt");
     archTS = fopen("ts.txt","w");
     if((pIntermedia = fopen("Intermedia.txt", "wt")) == NULL)
@@ -413,9 +412,9 @@ int main(int argc, char* argv[])
 
     fprintf(ass,"\n.CODE\n\n");
 
-    fprintf(ass,".mov AX,@DATA");
+    fprintf(ass,"mov AX,@DATA");
     fprintf(ass,"\nmov DS,AX");
-    fprintf(ass,"\nmov es,ax ;\n\n");
+    fprintf(ass,"\nmov es,ax\n\n");
 
 
 
@@ -424,7 +423,7 @@ int main(int argc, char* argv[])
 		fprintf(ass, Linea);
 	}
 
-    fprintf(ass,"\nmov ax,4c00h\nint 21h\n\nEnd");
+    fprintf(ass,"\nmov ax,4c00h\nint 21h\n\nEND");
 
     fclose(pIntermedia);
     fclose(yyin);
@@ -505,5 +504,9 @@ void operacionTake(float valor){
                         nroResultadoTake *= valor;
                     }
                 }
+
+char array[10];
+sprintf(array, "%f", nroResultadoTake);                
+insertarEnTablaDeSimbolos(array, "CTE_INT");
 }
 

@@ -1,17 +1,20 @@
               NOMBRE             |        TIPO        |              VALOR              |  LONGITUD   |
 ------------------------------------------------------------------------------------------------------|
- var111                          | INT                |                                 |           0 |
- var11                           | INT                |                                 |           0 |
- var1                            | INT                |                                 |           0 |
- var2                            | FLOAT              |                                 |           0 |
- var4                            | STRING             |                                 |           0 |
- var3                            | STRING             |                                 |           0 |
+ var111                          | INT                |                               ? |           0 |
+ var11                           | INT                |                               ? |           0 |
+ var1                            | INT                |                               ? |           0 |
+ var2                            | FLOAT              |                               ? |           0 |
+ var4                            | STRING             |                               ? |           0 |
+ var3                            | STRING             |                               ? |           0 |
  _1                              | CTE_INT            |                               1 |           0 |
  _103                            | CTE_INT            |                             103 |           0 |
  _5                              | CTE_INT            |                               5 |           0 |
- _HolaMundo                      | CTE_STRING         |                       HolaMundo |           0 |
+ _HolaMundo                      | CTE_STRING         |                     "HolaMundo" |           0 |
  _16                             | CTE_INT            |                              16 |           0 |
- _9999999999999999999999999.99   | CTE_FLOAT          |    9999999999999999999999999.99 |           0 |
+ _9999999999999999999999999_99   | CTE_FLOAT          |    9999999999999999999999999.99 |           0 |
  _1111                           | CTE_INT            |                            1111 |           0 |
  _3                              | CTE_INT            |                               3 |           0 |
  _2                              | CTE_INT            |                               2 |           0 |
+ _2_000000                       | CTE_INT            |                        2.000000 |           0 |
+ _4_000000                       | CTE_INT            |                        4.000000 |           0 |
+ _6_000000                       | CTE_INT            |                        6.000000 |           0 |
